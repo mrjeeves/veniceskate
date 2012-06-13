@@ -1,7 +1,6 @@
 <?php
 
 global $theme_path;
-
 /**
  * Thx @ JeffBurnz for this trick
  * @code makes sure sylesheet is never loaded via @import. @import loading prevents respondjs from doing it's job.
