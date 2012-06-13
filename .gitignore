@@ -1,8 +1,8 @@
-sites/default/files
-sites/default/private
-sites/default/settings.php
+#sites/default/files
+#sites/default/private
+#sites/default/settings.php
 cache/
-files/
+#files/
 /README.txt
 /CHANGELOG.txt
 /COPYRIGHT.txt
@@ -10,23 +10,23 @@ files/
 /LICENSE.txt
 /MAINTAINERS.txt
 /UPGRADE.txt
-robots.txt
+#robots.txt
 sites/all/README.txt
 sites/all/modules/README.txt
 sites/all/themes/README.txt
-.htaccess
+#.htaccess
 
 #for non core developer
 #only include "sites" folder without exclusions before
-cron.php
-index.php
-install.php
-update.php
-xmlrpc.php
-/includes
-/misc
-/modules     
-/profiles
-/scripts
-/themes
+#cron.php
+#index.php
+#install.php
+#update.php
+#xmlrpc.php
+#/includes
+#/misc
+#/modules     
+#/profiles
+#/scripts
+#/themes
 
