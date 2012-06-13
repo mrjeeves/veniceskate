@@ -1,0 +1,13 @@
+div.tweets-pulled-listing ul {
+  list-style: none;
+}
+
+div.tweets-pulled-listing div.tweet-authorphoto {
+  margin: 0 5px 0 0;
+  float: left;
+}
+
+div.tweets-pulled-listing div.tweet-authorphoto img {
+  max-height: 40px;
+  max-width: 40px;
+}

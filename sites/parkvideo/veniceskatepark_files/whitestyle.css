@@ -1,0 +1,140 @@
+/* CSS Document */
+
+.sideborder2 { border-left-width: 1px; border-left-style: solid; border-left-color: #54752E;}
+.tableborder {border: 1px solid #d9d9cf;}
+.tableborder-drk {border: 1px solid #333333;}
+.hcal {background-image: url(../images/AboutUs/Contacts/h1box.gif); background-repeat: no-repeat;}
+.hman {background-image: url(../images/AboutUs/Contacts/hmbox.gif); background-repeat: no-repeat;}
+.custservbox {background-image: url(../images/AboutUs/Contacts/sales.gif); background-repeat: no-repeat;}
+.accntbox {background-image: url(../images/AboutUs/Contacts/accounting.gif); background-repeat: no-repeat;}
+.creatbox {background-image: url(../images/AboutUs/Contacts/creative.gif); background-repeat: no-repeat;}
+
+
+
+/*SCROLL BAR */
+.scrollbar {SCROLLBAR-FACE-COLOR: #8CBE4F; 
+SCROLLBAR-HIGHLIGHT-COLOR: #557831; 
+SCROLLBAR-SHADOW-COLOR: #557831; 
+SCROLLBAR-3DLIGHT-COLOR: #CADFAF; 
+SCROLLBAR-ARROW-COLOR:  #FFFFFF; 
+SCROLLBAR-TRACK-COLOR: #557831; 
+SCROLLBAR-DARKSHADOW-COLOR: #557831;}
+/*SCROLL BAR */
+
+
+/*FROM SHOPPINGART */
+.FooterLink {COLOR: white; TEXT-DECORATION: none}
+A.FooterLink:hover{COLOR: white; TEXT-DECORATION: underline}
+.SubmitButton{COLOR: white;  TEXT-DECORATION: none}
+A.SubmitButton:hover{COLOR: white; TEXT-DECORATION: underline}
+.EmailLink {COLOR: black; TEXT-DECORATION: none}
+A.EmailLink:hover {COLOR: black; TEXT-DECORATION: underline}
+.ForumTable {FONT-SIZE: 11px; FONT-FAMILY: Verdana, Geneva, Arial, Helvetica, sans-serif}
+A {TEXT-DECORATION: none}
+A:hover{TEXT-DECORATION: underline}
+.PressText{FONT-SIZE: 9pt;  FONT-FAMILY: Arial}
+.PressHeader{ FONT-SIZE: 8pt; FONT-FAMILY: Arial}
+.background {background-image: url(../images/AboutUs/Contacts/box7.gif); background-repeat: no-repeat;}
+.box8 { background-image: url(../Images/AboutUs/Contacts/box8.gif); background-repeat: no-repeat;}
+.paragraph {line-height: 15px;}
+.box9 {background-image: url(../images/AboutUs/Contacts/box9.gif); background-repeat: no-repeat;}
+.evnts-brdr {border-right: 1px solid #999999; font-family: Arial, Helvetica, sans-serif; font-size: 12px;}
+.evnts-txt {font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9px;}
+.stabilizerline {border-right-width: 1px; border-right-style: solid; border-right-color: #000000;}
+.sideborders {border-right-width: 1px; border-left-width: 1px; border-right-style: solid; border-left-style: solid; border-right-color: #8CBE4F; border-left-color: #8CBE4F;}
+/*FROM SHOPPINGART */
+
+
+
+/* SITE TEXTS */
+.text10 { font-family: verdana; font-size: 10px; color: #999999;}
+a.text10:link {font-family: verdana; font-size: 10px; text-decoration: none;}
+a.text10:visited {font-family: verdana; font-size: 10px; text-decoration: none;}
+.text-arial10-lyt {
+	font-family: Arial;
+	font-size: 10px;
+	color: #666666;
+	text-decoration: none;
+}
+
+a.text10:active { font-family: verdana; font-size: 10px; text-decoration: none; }
+a.text10:hover {font-family: verdana;font-size: 10px;color: #666666;text-decoration: none;}
+
+.text10-drk { font-family: verdana; font-size: 10px; color: #666666;}
+a.text10-drk:link {font-family: verdana; font-size: 10px; text-decoration: none;}
+a.text10-drk:visited {font-family: verdana; font-size: 10px; text-decoration: none;}
+a.text10-drk:active { font-family: verdana; font-size: 10px; text-decoration: none; }
+a.text10-drk:hover {font-family: verdana;font-size: 10px;color: #333333;text-decoration: none;}
+
+.text11 {font-family: verdana; font-size: 11px; color: #999999; text-decoration: none;}
+a.text11:link {font-family: verdana; font-size: 11px; text-decoration: none;}
+a.text11:visited {font-family: verdana; font-size: 11px; text-decoration: none;}
+a.text11:active { font-family: verdana; font-size: 11px; text-decoration: none; }
+a.text11:hover {font-family: verdana;font-size: 11px;color: #000000;text-decoration: none;}
+
+.text11-drk {font-family: verdana; font-size: 11px; color: #666666; text-decoration: none;}
+a.text11-drk:link {font-family: verdana; font-size: 11px; text-decoration: none;}
+a.text11-drk:visited {font-family: verdana; font-size: 11px; text-decoration: none;}
+a.text11-drk:active { font-family: verdana; font-size: 11px; text-decoration: none; }
+a.text11-drk:hover {font-family: verdana;font-size: 11px;color: #000000;text-decoration: none;}
+
+.txtbold10-blk { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: #666666;}
+.txt11bold-blk { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11px; color: #666666;}
+
+.text11-lyt {font-family: verdana; font-size: 11px; color: #999999; text-decoration: none;}
+a.text11-lyt:link {font-family: verdana; font-size: 11px; text-decoration: none;}
+a.text11-lyt:visited {font-family: verdana; font-size: 11px; text-decoration: none;}
+a.text11-lyt:active { font-family: verdana; font-size: 11px; text-decoration: none; }
+a.text11-lyt:hover {font-family: verdana;font-size: 11px;color: #666666;text-decoration: none;}
+
+.text11-wyt {font-family: verdana; font-size: 11px; color: #FFFFFF; text-decoration: none;}
+a.text11-wyt:link {font-family: verdana; font-size: 11px; text-decoration: none;}
+a.text11-wyt:visited {font-family: verdana; font-size: 11px; text-decoration: none;}
+a.text11-wyt:active { font-family: verdana; font-size: 11px; text-decoration: none; }
+a.text11-wyt:hover {font-family: verdana;font-size: 11px;color: #d9d9cf;text-decoration: none;}
+
+.text12-wyt {font-family: verdana; font-size: 12px; color: #FFFFFF; text-decoration: none;}
+a.text12-wyt:link {font-family: verdana; font-size: 12px; text-decoration: none;}
+a.text12-wyt:visited {font-family: verdana; font-size: 12px; text-decoration: none;}
+a.text12-wyt:active { font-family: verdana; font-size: 12px; text-decoration: none; }
+a.text12-wyt:hover {font-family: verdana;font-size: 12px;color: #d9d9cf;text-decoration: none;}
+
+.text12-drk {font-family: verdana; font-size: 12px; color: #333333; text-decoration: none;}
+a.text12-drk:link {font-family: verdana; font-size: 12px; text-decoration: none;}
+a.text12-drk:visited {font-family: verdana; font-size: 12px; text-decoration: none;}
+a.text12-drk:active { font-family: verdana; font-size: 12px; text-decoration: none; }
+a.text12-drk:hover {font-family: verdana;font-size: 12px;color: #999999;text-decoration: none;}
+
+.text12 { font-family: verdana; font-size: 12px; color: #999999;}
+a.text12:link {font-family: verdana; font-size: 12px; text-decoration: none;}
+a.text12:visited {font-family: verdana; font-size: 12px; text-decoration: none;}
+a.text12:active { font-family: verdana; font-size: 12px; text-decoration: none; }
+a.text12:hover {font-family: verdana;font-size: 12px;color: #666666;text-decoration: none;}
+
+.text11-nolink {font-family: Verdana; font-size: 11px; color: #999999;}
+
+.text-arial11 {font-family: Arial, sans-serif; font-size: 11px; color: #000000;}
+a.text-arial11:link {font-family: Arial, sans-serif; font-size: 11px; color: #000000; text-decoration: none;}
+a.text-arial11:visited {font-family: Arial, sans-serif; font-size: 11px; color: #000000; text-decoration: none;}
+a.text-arial11:active {font-family: Arial, sans-serif; font-size: 11px; color: #000000; text-decoration: none;}
+a.text-arial11:hover {font-family: Arial, sans-serif; font-size: 11px; color: #999999; text-decoration: none;}
+
+.text-arial10 { font-family: Arial, sans-serif; font-size: 10px; color: #000000;}
+a.text-arial10:link {font-family: Arial, sans-serif; font-size: 11px; color: #000000; text-decoration: none;}
+a.text-arial10:visited {font-family: Arial, sans-serif; font-size: 11px; color: #000000; text-decoration: none;}
+a.text-arial10:active {font-family: Arial, sans-serif; font-size: 11px; color: #000000; text-decoration: none;}
+a.text-arial10:hover {font-family: Arial, sans-serif; font-size: 11px; color: #999999; text-decoration: none;}
+/* SITE TEXTS */
+
+
+
+/* FORM STYLES */
+.textbox {font-family: verdana;font-size: 10px;color: #666666;border: 1px solid #d9d9cf;}
+.textbox-drk {font-family: verdana;font-size: 11px;color: #333333;border: 1px solid #b0b09f;}
+.button {font-family: Verdana; font-size: 11px;}
+.textboxdrk-12 {font-family: verdana;font-size: 12px;color: #333333;border: 1px solid #808068;}
+.text11-red {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	color: #FF0000;
+}

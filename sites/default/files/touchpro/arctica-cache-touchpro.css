@@ -1,0 +1,376 @@
+@media screen {
+  .mast { width: 100%; }
+  .mast { max-width: 1140px; }
+  .grid-inner { margin: 10px 10px; }
+  .two-sidebars .main {width:33.334%; margin-left:33.333%; margin-right:33.333%; } 
+  .sidebar-first .main {width:66.667%; margin-left:33.333%; margin-right:0; } 
+  .sidebar-second .main {width:66.667%; margin-right:33.333%; margin-left:0; } 
+  .region-sidebar-first {width: 33.333%; margin-left: -100%; margin-right:0; } 
+  .region-sidebar-second {width: 33.333%; margin-left: -33.333%; } 
+
+  /**
+   * Grid Widths
+   */
+
+  .media-1-grid-100 {width:100%; float:left;}
+  .media-1-grid-3-4 {width:75%; float:left;}
+  .media-1-grid-2-3 {width:66.65%; float:left;}
+  .media-1-grid-1-2 {width:50%; float:left;}
+  .media-1-grid-1-3 {width:33.32%; float:left;}
+  .media-1-grid-1-4 {width:25%; float:left;}
+  .media-1-grid-1-5 {width:20%; float:left;}
+  .media-1-grid-1-6 {width:16.65%; float:left;}
+  .media-1-grid-1-8 {width:12.5%; float:left;}
+  .media-1-grid-phi {width:61.8%; float:left;}
+  .media-1-grid-phi2 {width:38.2%; float:left;}
+  .media-1-grid-phi3 {width:23.6%; float:left;}
+
+  /**
+   * Clear Styles
+   */
+
+  .media-1-clear-left {clear:left;}
+  .media-1-clear-right {clear:right;}
+  .media-1-clear-none {clear:none;}
+
+  /**
+   * Prefill Styles
+   */
+
+  .media-1-grid-prefill-3-4 {padding-left:75%; float:left;}
+  .media-1-grid-prefill-2-3 {padding-left:66.65%; float:left;}
+  .media-1-grid-prefill-1-2 {padding-left:50%; float:left;}
+  .media-1-grid-prefill-1-3 {padding-left:33.32%; float:left;}
+  .media-1-grid-prefill-1-4 {padding-left:25%; float:left;}
+  .media-1-grid-prefill-1-5 {padding-left:20%; float:left;}
+  .media-1-grid-prefill-1-6 {padding-left:16.65%; float:left;}
+  .media-1-grid-prefill-1-8 {padding-left:12.5%; float:left;}
+  .media-1-grid-prefill-phi {padding-left:61.8%; float:left;}
+  .media-1-grid-prefill-phi2 {padding-left:38.2%; float:left;}
+  .media-1-grid-prefill-phi3 {padding-left:23.6%; float:left;}
+
+  /**
+   * Postfill Styles
+   */
+
+  .media-1-grid-postfill-3-4 {padding-right:75%; float:left;}
+  .media-1-grid-postfill-2-3 {padding-right:66.65%; float:left;}
+  .media-1-grid-postfill-1-2 {padding-right:50%; float:left;}
+  .media-1-grid-postfill-1-3 {padding-right:33.32%; float:left;}
+  .media-1-grid-postfill-1-4 {padding-right:25%; float:left;}
+  .media-1-grid-postfill-1-5 {padding-right:20%; float:left;}
+  .media-1-grid-postfill-1-6 {padding-right:16.65%; float:left;}
+  .media-1-grid-postfill-1-8 {padding-right:12.5%; float:left;}
+  .media-1-grid-postfill-phi {padding-right:61.8%; float:left;}
+  .media-1-grid-postfill-phi2 {padding-right:38.2%; float:left;}
+  .media-1-grid-postfill-phi3 {padding-right:23.6%; float:left;}
+}
+@media screen and (max-width:1024px) {
+  .mast { width: 90%; }
+  .mast { max-width: 1140px; }
+  .grid-inner { margin: 10px 10px; }
+  .two-sidebars .main {width:33.334%; margin-left:33.333%; margin-right:33.333%; } 
+  .sidebar-first .main {width:66.667%; margin-left:33.333%; margin-right:0; } 
+  .sidebar-second .main {width:66.667%; margin-right:33.333%; margin-left:0; } 
+  .region-sidebar-first {width: 33.333%; margin-left: -100%; margin-right:0; } 
+  .region-sidebar-second {width: 33.333%; margin-left: -33.333%; } 
+
+  /**
+   * Grid Widths
+   */
+
+  .media-2-grid-100 {width:100%; float:left;}
+  .media-2-grid-3-4 {width:75%; float:left;}
+  .media-2-grid-2-3 {width:66.65%; float:left;}
+  .media-2-grid-1-2 {width:50%; float:left;}
+  .media-2-grid-1-3 {width:33.32%; float:left;}
+  .media-2-grid-1-4 {width:25%; float:left;}
+  .media-2-grid-1-5 {width:20%; float:left;}
+  .media-2-grid-1-6 {width:16.65%; float:left;}
+  .media-2-grid-1-8 {width:12.5%; float:left;}
+  .media-2-grid-phi {width:61.8%; float:left;}
+  .media-2-grid-phi2 {width:38.2%; float:left;}
+  .media-2-grid-phi3 {width:23.6%; float:left;}
+
+  /**
+   * Clear Styles
+   */
+
+  .media-2-clear-left {clear:left;}
+  .media-2-clear-right {clear:right;}
+  .media-2-clear-none {clear:none;}
+
+  /**
+   * Prefill Styles
+   */
+
+  .media-2-grid-prefill-3-4 {padding-left:75%; float:left;}
+  .media-2-grid-prefill-2-3 {padding-left:66.65%; float:left;}
+  .media-2-grid-prefill-1-2 {padding-left:50%; float:left;}
+  .media-2-grid-prefill-1-3 {padding-left:33.32%; float:left;}
+  .media-2-grid-prefill-1-4 {padding-left:25%; float:left;}
+  .media-2-grid-prefill-1-5 {padding-left:20%; float:left;}
+  .media-2-grid-prefill-1-6 {padding-left:16.65%; float:left;}
+  .media-2-grid-prefill-1-8 {padding-left:12.5%; float:left;}
+  .media-2-grid-prefill-phi {padding-left:61.8%; float:left;}
+  .media-2-grid-prefill-phi2 {padding-left:38.2%; float:left;}
+  .media-2-grid-prefill-phi3 {padding-left:23.6%; float:left;}
+
+  /**
+   * Postfill Styles
+   */
+
+  .media-2-grid-postfill-3-4 {padding-right:75%; float:left;}
+  .media-2-grid-postfill-2-3 {padding-right:66.65%; float:left;}
+  .media-2-grid-postfill-1-2 {padding-right:50%; float:left;}
+  .media-2-grid-postfill-1-3 {padding-right:33.32%; float:left;}
+  .media-2-grid-postfill-1-4 {padding-right:25%; float:left;}
+  .media-2-grid-postfill-1-5 {padding-right:20%; float:left;}
+  .media-2-grid-postfill-1-6 {padding-right:16.65%; float:left;}
+  .media-2-grid-postfill-1-8 {padding-right:12.5%; float:left;}
+  .media-2-grid-postfill-phi {padding-right:61.8%; float:left;}
+  .media-2-grid-postfill-phi2 {padding-right:38.2%; float:left;}
+  .media-2-grid-postfill-phi3 {padding-right:23.6%; float:left;}
+}
+@media screen and (max-width:768px) {
+  .mast { width: 90%; }
+  .mast { max-width: 1140px; }
+  .grid-inner { margin: 10px 10px; }
+  .mast .main, .mast .region-sidebar-first, .mast .region-sidebar-second {width: 100%; float:none; margin-left: 0; margin-right: 0; left:0; right:0; clear:both; } 
+
+  /**
+   * Grid Widths
+   */
+
+  .media-3-grid-100 {width:100%; float:left;}
+  .media-3-grid-3-4 {width:75%; float:left;}
+  .media-3-grid-2-3 {width:66.65%; float:left;}
+  .media-3-grid-1-2 {width:50%; float:left;}
+  .media-3-grid-1-3 {width:33.32%; float:left;}
+  .media-3-grid-1-4 {width:25%; float:left;}
+  .media-3-grid-1-5 {width:20%; float:left;}
+  .media-3-grid-1-6 {width:16.65%; float:left;}
+  .media-3-grid-1-8 {width:12.5%; float:left;}
+  .media-3-grid-phi {width:61.8%; float:left;}
+  .media-3-grid-phi2 {width:38.2%; float:left;}
+  .media-3-grid-phi3 {width:23.6%; float:left;}
+
+  /**
+   * Clear Styles
+   */
+
+  .media-3-clear-left {clear:left;}
+  .media-3-clear-right {clear:right;}
+  .media-3-clear-none {clear:none;}
+
+  /**
+   * Prefill Styles
+   */
+
+  .media-3-grid-prefill-3-4 {padding-left:75%; float:left;}
+  .media-3-grid-prefill-2-3 {padding-left:66.65%; float:left;}
+  .media-3-grid-prefill-1-2 {padding-left:50%; float:left;}
+  .media-3-grid-prefill-1-3 {padding-left:33.32%; float:left;}
+  .media-3-grid-prefill-1-4 {padding-left:25%; float:left;}
+  .media-3-grid-prefill-1-5 {padding-left:20%; float:left;}
+  .media-3-grid-prefill-1-6 {padding-left:16.65%; float:left;}
+  .media-3-grid-prefill-1-8 {padding-left:12.5%; float:left;}
+  .media-3-grid-prefill-phi {padding-left:61.8%; float:left;}
+  .media-3-grid-prefill-phi2 {padding-left:38.2%; float:left;}
+  .media-3-grid-prefill-phi3 {padding-left:23.6%; float:left;}
+
+  /**
+   * Postfill Styles
+   */
+
+  .media-3-grid-postfill-3-4 {padding-right:75%; float:left;}
+  .media-3-grid-postfill-2-3 {padding-right:66.65%; float:left;}
+  .media-3-grid-postfill-1-2 {padding-right:50%; float:left;}
+  .media-3-grid-postfill-1-3 {padding-right:33.32%; float:left;}
+  .media-3-grid-postfill-1-4 {padding-right:25%; float:left;}
+  .media-3-grid-postfill-1-5 {padding-right:20%; float:left;}
+  .media-3-grid-postfill-1-6 {padding-right:16.65%; float:left;}
+  .media-3-grid-postfill-1-8 {padding-right:12.5%; float:left;}
+  .media-3-grid-postfill-phi {padding-right:61.8%; float:left;}
+  .media-3-grid-postfill-phi2 {padding-right:38.2%; float:left;}
+  .media-3-grid-postfill-phi3 {padding-right:23.6%; float:left;}
+}
+@media screen and (max-width:480px) {
+  .mast { width: 90%; }
+  .mast { max-width: 1140px; }
+  .grid-inner { margin: 10px 10px; }
+  .mast .main, .mast .region-sidebar-first, .mast .region-sidebar-second {width: 100%; float:none; margin-left: 0; margin-right: 0; left:0; right:0; clear:both; } 
+
+  /**
+   * Grid Widths
+   */
+
+  .media-4-grid-100 {width:100%; float:left;}
+  .media-4-grid-3-4 {width:75%; float:left;}
+  .media-4-grid-2-3 {width:66.65%; float:left;}
+  .media-4-grid-1-2 {width:50%; float:left;}
+  .media-4-grid-1-3 {width:33.32%; float:left;}
+  .media-4-grid-1-4 {width:25%; float:left;}
+  .media-4-grid-1-5 {width:20%; float:left;}
+  .media-4-grid-1-6 {width:16.65%; float:left;}
+  .media-4-grid-1-8 {width:12.5%; float:left;}
+  .media-4-grid-phi {width:61.8%; float:left;}
+  .media-4-grid-phi2 {width:38.2%; float:left;}
+  .media-4-grid-phi3 {width:23.6%; float:left;}
+
+  /**
+   * Clear Styles
+   */
+
+  .media-4-clear-left {clear:left;}
+  .media-4-clear-right {clear:right;}
+  .media-4-clear-none {clear:none;}
+
+  /**
+   * Prefill Styles
+   */
+
+  .media-4-grid-prefill-3-4 {padding-left:75%; float:left;}
+  .media-4-grid-prefill-2-3 {padding-left:66.65%; float:left;}
+  .media-4-grid-prefill-1-2 {padding-left:50%; float:left;}
+  .media-4-grid-prefill-1-3 {padding-left:33.32%; float:left;}
+  .media-4-grid-prefill-1-4 {padding-left:25%; float:left;}
+  .media-4-grid-prefill-1-5 {padding-left:20%; float:left;}
+  .media-4-grid-prefill-1-6 {padding-left:16.65%; float:left;}
+  .media-4-grid-prefill-1-8 {padding-left:12.5%; float:left;}
+  .media-4-grid-prefill-phi {padding-left:61.8%; float:left;}
+  .media-4-grid-prefill-phi2 {padding-left:38.2%; float:left;}
+  .media-4-grid-prefill-phi3 {padding-left:23.6%; float:left;}
+
+  /**
+   * Postfill Styles
+   */
+
+  .media-4-grid-postfill-3-4 {padding-right:75%; float:left;}
+  .media-4-grid-postfill-2-3 {padding-right:66.65%; float:left;}
+  .media-4-grid-postfill-1-2 {padding-right:50%; float:left;}
+  .media-4-grid-postfill-1-3 {padding-right:33.32%; float:left;}
+  .media-4-grid-postfill-1-4 {padding-right:25%; float:left;}
+  .media-4-grid-postfill-1-5 {padding-right:20%; float:left;}
+  .media-4-grid-postfill-1-6 {padding-right:16.65%; float:left;}
+  .media-4-grid-postfill-1-8 {padding-right:12.5%; float:left;}
+  .media-4-grid-postfill-phi {padding-right:61.8%; float:left;}
+  .media-4-grid-postfill-phi2 {padding-right:38.2%; float:left;}
+  .media-4-grid-postfill-phi3 {padding-right:23.6%; float:left;}
+}
+@media screen and (max-width:320px) {
+  .mast { width: 90%; }
+  .mast { max-width: 1140px; }
+  .grid-inner { margin: 10px 10px; }
+  .mast .main, .mast .region-sidebar-first, .mast .region-sidebar-second {width: 100%; float:none; margin-left: 0; margin-right: 0; left:0; right:0; clear:both; } 
+
+  /**
+   * Grid Widths
+   */
+
+  .media-5-grid-100 {width:100%; float:left;}
+  .media-5-grid-3-4 {width:75%; float:left;}
+  .media-5-grid-2-3 {width:66.65%; float:left;}
+  .media-5-grid-1-2 {width:50%; float:left;}
+  .media-5-grid-1-3 {width:33.32%; float:left;}
+  .media-5-grid-1-4 {width:25%; float:left;}
+  .media-5-grid-1-5 {width:20%; float:left;}
+  .media-5-grid-1-6 {width:16.65%; float:left;}
+  .media-5-grid-1-8 {width:12.5%; float:left;}
+  .media-5-grid-phi {width:61.8%; float:left;}
+  .media-5-grid-phi2 {width:38.2%; float:left;}
+  .media-5-grid-phi3 {width:23.6%; float:left;}
+
+  /**
+   * Clear Styles
+   */
+
+  .media-5-clear-left {clear:left;}
+  .media-5-clear-right {clear:right;}
+  .media-5-clear-none {clear:none;}
+
+  /**
+   * Prefill Styles
+   */
+
+  .media-5-grid-prefill-3-4 {padding-left:75%; float:left;}
+  .media-5-grid-prefill-2-3 {padding-left:66.65%; float:left;}
+  .media-5-grid-prefill-1-2 {padding-left:50%; float:left;}
+  .media-5-grid-prefill-1-3 {padding-left:33.32%; float:left;}
+  .media-5-grid-prefill-1-4 {padding-left:25%; float:left;}
+  .media-5-grid-prefill-1-5 {padding-left:20%; float:left;}
+  .media-5-grid-prefill-1-6 {padding-left:16.65%; float:left;}
+  .media-5-grid-prefill-1-8 {padding-left:12.5%; float:left;}
+  .media-5-grid-prefill-phi {padding-left:61.8%; float:left;}
+  .media-5-grid-prefill-phi2 {padding-left:38.2%; float:left;}
+  .media-5-grid-prefill-phi3 {padding-left:23.6%; float:left;}
+
+  /**
+   * Postfill Styles
+   */
+
+  .media-5-grid-postfill-3-4 {padding-right:75%; float:left;}
+  .media-5-grid-postfill-2-3 {padding-right:66.65%; float:left;}
+  .media-5-grid-postfill-1-2 {padding-right:50%; float:left;}
+  .media-5-grid-postfill-1-3 {padding-right:33.32%; float:left;}
+  .media-5-grid-postfill-1-4 {padding-right:25%; float:left;}
+  .media-5-grid-postfill-1-5 {padding-right:20%; float:left;}
+  .media-5-grid-postfill-1-6 {padding-right:16.65%; float:left;}
+  .media-5-grid-postfill-1-8 {padding-right:12.5%; float:left;}
+  .media-5-grid-postfill-phi {padding-right:61.8%; float:left;}
+  .media-5-grid-postfill-phi2 {padding-right:38.2%; float:left;}
+  .media-5-grid-postfill-phi3 {padding-right:23.6%; float:left;}
+}
+
+
+.logo-container,
+#page .block-search .form-actions,
+.post-icon,
+.content-column .node header .post-icon,
+.region-featured .block .grid-inner header .post-icon,
+#page h2.block-title,
+#page h1.node-title,
+h1.page-title,
+.comment h3,
+.masthead ul li a,
+.masthead,
+.region-footer {behavior:url(/drupal-7.12/sites/all/themes/arctica/arctica/features/arctica-cssfuture/PIE/PIE.php);}
+
+
+body { font-family: Arial, Helvetica, "Nimbus Sans L", "Liberation Sans", "FreeSans", sans-serif; }
+h1,h2 { font-family: "Lato Bold", "Lato"; }
+#main-menu { font-family: Arial, Helvetica, "Nimbus Sans L", "Liberation Sans", "FreeSans", sans-serif; }
+.site-name { font-family: "Lato Black", "Lato"; }
+
+
+body .primary-menu ul ul {width:200px;}
+body .primary-menu ul.menu ul.menu li {width:200px;}
+body .primary-menu ul ul ul {margin-left:200px;}
+  .bg-gradient {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: -moz-linear-gradient(#ffffff, #d1d1d1);
+    background: -ms-linear-gradient(#ffffff, #d1d1d1);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #d1d1d1));
+    background: -webkit-linear-gradient(#ffffff, #d1d1d1);
+    background: -o-linear-gradient(#ffffff, #d1d1d1);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#d1d1d1')progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#d1d1d1')progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+    background: linear-gradient(#ffffff, #d1d1d1);
+    opacity: 1;
+  }
+  .bg-image {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: url('/drupal-7.12/sites/all/themes/tundra/tundra//features/sooper-backgroundkit/images/co5.jpg') top left repeat;
+    
+    -ms-filter:"";
+    opacity: 1;
+    
+  }

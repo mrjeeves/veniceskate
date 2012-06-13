@@ -1,0 +1,1250 @@
+$ = jQuery.noConflict(); // Make sure jQuery owns $ here
+
+/*
+ * jQuery Cycle Plugin (with Transition Definitions)
+ */
+;(function($){var ver="2.71";if($.support==undefined){$.support={opacity:!($.browser.msie)};}function log(){if(window.console&&window.console.log){window.console.log("[cycle] "+Array.prototype.join.call(arguments," "));}}$.fn.cycle=function(options,arg2){var o={s:this.selector,c:this.context};if(this.length===0&&options!="stop"){if(!$.isReady&&o.s){log("DOM not ready, queuing slideshow");$(function(){$(o.s,o.c).cycle(options,arg2);});return this;}log("terminating; zero elements found by selector"+($.isReady?"":" (DOM not ready)"));return this;}return this.each(function(){var opts=handleArguments(this,options,arg2);if(opts===false){return;}if(this.cycleTimeout){clearTimeout(this.cycleTimeout);}this.cycleTimeout=this.cyclePause=0;var $cont=$(this);var $slides=opts.slideExpr?$(opts.slideExpr,this):$cont.children();var els=$slides.get();if(els.length<2){log("terminating; too few slides: "+els.length);return;}var opts2=buildOptions($cont,$slides,els,opts,o);if(opts2===false){return;}if(opts2.timeout||opts2.continuous){this.cycleTimeout=setTimeout(function(){go(els,opts2,0,!opts2.rev);},opts2.continuous?10:opts2.timeout+(opts2.delay||0));}});};function handleArguments(cont,options,arg2){if(cont.cycleStop==undefined){cont.cycleStop=0;}if(options===undefined||options===null){options={};}if(options.constructor==String){switch(options){case"stop":cont.cycleStop++;if(cont.cycleTimeout){clearTimeout(cont.cycleTimeout);}cont.cycleTimeout=0;$(cont).removeData("cycle.opts");return false;case"pause":cont.cyclePause=1;return false;case"resume":cont.cyclePause=0;if(arg2===true){options=$(cont).data("cycle.opts");if(!options){log("options not found, can not resume");return false;}if(cont.cycleTimeout){clearTimeout(cont.cycleTimeout);cont.cycleTimeout=0;}go(options.elements,options,1,1);}return false;case"prev":case"next":var opts=$(cont).data("cycle.opts");if(!opts){log('options not found, "prev/next" ignored');return false;}$.fn.cycle[options](opts);return false;default:options={fx:options};}return options;}else{if(options.constructor==Number){var num=options;options=$(cont).data("cycle.opts");if(!options){log("options not found, can not advance slide");return false;}if(num<0||num>=options.elements.length){log("invalid slide index: "+num);return false;}options.nextSlide=num;if(cont.cycleTimeout){clearTimeout(cont.cycleTimeout);cont.cycleTimeout=0;}if(typeof arg2=="string"){options.oneTimeFx=arg2;}go(options.elements,options,1,num>=options.currSlide);return false;}}return options;}function removeFilter(el,opts){if(!$.support.opacity&&opts.cleartype&&el.style.filter){try{el.style.removeAttribute("filter");}catch(smother){}}}function buildOptions($cont,$slides,els,options,o){var opts=$.extend({},$.fn.cycle.defaults,options||{},$.metadata?$cont.metadata():$.meta?$cont.data():{});if(opts.autostop){opts.countdown=opts.autostopCount||els.length;}var cont=$cont[0];$cont.data("cycle.opts",opts);opts.$cont=$cont;opts.stopCount=cont.cycleStop;opts.elements=els;opts.before=opts.before?[opts.before]:[];opts.after=opts.after?[opts.after]:[];opts.after.unshift(function(){opts.busy=0;});if(!$.support.opacity&&opts.cleartype){opts.after.push(function(){removeFilter(this,opts);});}if(opts.continuous){opts.after.push(function(){go(els,opts,0,!opts.rev);});}saveOriginalOpts(opts);if(!$.support.opacity&&opts.cleartype&&!opts.cleartypeNoBg){clearTypeFix($slides);}if($cont.css("position")=="static"){$cont.css("position","relative");}if(opts.width){$cont.width(opts.width);}if(opts.height&&opts.height!="auto"){$cont.height(opts.height);}if(opts.startingSlide){opts.startingSlide=parseInt(opts.startingSlide);}if(opts.random){opts.randomMap=[];for(var i=0;i<els.length;i++){opts.randomMap.push(i);}opts.randomMap.sort(function(a,b){return Math.random()-0.5;});opts.randomIndex=0;opts.startingSlide=opts.randomMap[0];}else{if(opts.startingSlide>=els.length){opts.startingSlide=0;}}opts.currSlide=opts.startingSlide=opts.startingSlide||0;var first=opts.startingSlide;$slides.css({position:"absolute",top:0,left:0}).hide().each(function(i){var z=first?i>=first?els.length-(i-first):first-i:els.length-i;$(this).css("z-index",z);});$(els[first]).css("opacity",1).show();removeFilter(els[first],opts);if(opts.fit&&opts.width){$slides.width(opts.width);}if(opts.fit&&opts.height&&opts.height!="auto"){$slides.height(opts.height);}var reshape=opts.containerResize&&!$cont.innerHeight();if(reshape){var maxw=0,maxh=0;for(var j=0;j<els.length;j++){var $e=$(els[j]),e=$e[0],w=$e.outerWidth(),h=$e.outerHeight();if(!w){w=e.offsetWidth;}if(!h){h=e.offsetHeight;}maxw=w>maxw?w:maxw;maxh=h>maxh?h:maxh;}if(maxw>0&&maxh>0){$cont.css({width:maxw+"px",height:maxh+"px"});}}if(opts.pause){$cont.hover(function(){this.cyclePause++;},function(){this.cyclePause--;});}if(supportMultiTransitions(opts)===false){return false;}if(!opts.multiFx){var init=$.fn.cycle.transitions[opts.fx];if($.isFunction(init)){init($cont,$slides,opts);}else{if(opts.fx!="custom"&&!opts.multiFx){log("unknown transition: "+opts.fx,"; slideshow terminating");return false;}}}var requeue=false;options.requeueAttempts=options.requeueAttempts||0;$slides.each(function(){var $el=$(this);this.cycleH=(opts.fit&&opts.height)?opts.height:$el.height();this.cycleW=(opts.fit&&opts.width)?opts.width:$el.width();if($el.is("img")){var loadingIE=($.browser.msie&&this.cycleW==28&&this.cycleH==30&&!this.complete);var loadingFF=($.browser.mozilla&&this.cycleW==34&&this.cycleH==19&&!this.complete);var loadingOp=($.browser.opera&&((this.cycleW==42&&this.cycleH==19)||(this.cycleW==37&&this.cycleH==17))&&!this.complete);var loadingOther=(this.cycleH==0&&this.cycleW==0&&!this.complete);if(loadingIE||loadingFF||loadingOp||loadingOther){if(o.s&&opts.requeueOnImageNotLoaded&&++options.requeueAttempts<100){log(options.requeueAttempts," - img slide not loaded, requeuing slideshow: ",this.src,this.cycleW,this.cycleH);setTimeout(function(){$(o.s,o.c).cycle(options);},opts.requeueTimeout);requeue=true;return false;}else{log("could not determine size of image: "+this.src,this.cycleW,this.cycleH);}}}return true;});if(requeue){return false;}opts.cssBefore=opts.cssBefore||{};opts.animIn=opts.animIn||{};opts.animOut=opts.animOut||{};$slides.not(":eq("+first+")").css(opts.cssBefore);if(opts.cssFirst){$($slides[first]).css(opts.cssFirst);}if(opts.timeout){opts.timeout=parseInt(opts.timeout);if(opts.speed.constructor==String){opts.speed=$.fx.speeds[opts.speed]||parseInt(opts.speed);}if(!opts.sync){opts.speed=opts.speed/2;}while((opts.timeout-opts.speed)<250){opts.timeout+=opts.speed;}}if(opts.easing){opts.easeIn=opts.easeOut=opts.easing;}if(!opts.speedIn){opts.speedIn=opts.speed;}if(!opts.speedOut){opts.speedOut=opts.speed;}opts.slideCount=els.length;opts.currSlide=opts.lastSlide=first;if(opts.random){opts.nextSlide=opts.currSlide;if(++opts.randomIndex==els.length){opts.randomIndex=0;}opts.nextSlide=opts.randomMap[opts.randomIndex];}else{opts.nextSlide=opts.startingSlide>=(els.length-1)?0:opts.startingSlide+1;}var e0=$slides[first];if(opts.before.length){opts.before[0].apply(e0,[e0,e0,opts,true]);}if(opts.after.length>1){opts.after[1].apply(e0,[e0,e0,opts,true]);}if(opts.next){$(opts.next).bind(opts.prevNextEvent,function(){return advance(opts,opts.rev?-1:1);});}if(opts.prev){$(opts.prev).bind(opts.prevNextEvent,function(){return advance(opts,opts.rev?1:-1);});}if(opts.pager){buildPager(els,opts);}exposeAddSlide(opts,els);return opts;}function saveOriginalOpts(opts){opts.original={before:[],after:[]};opts.original.cssBefore=$.extend({},opts.cssBefore);opts.original.cssAfter=$.extend({},opts.cssAfter);opts.original.animIn=$.extend({},opts.animIn);opts.original.animOut=$.extend({},opts.animOut);$.each(opts.before,function(){opts.original.before.push(this);});$.each(opts.after,function(){opts.original.after.push(this);});}function supportMultiTransitions(opts){var i,tx,txs=$.fn.cycle.transitions;if(opts.fx.indexOf(",")>0){opts.multiFx=true;opts.fxs=opts.fx.replace(/\s*/g,"").split(",");for(i=0;i<opts.fxs.length;i++){var fx=opts.fxs[i];tx=txs[fx];if(!tx||!txs.hasOwnProperty(fx)||!$.isFunction(tx)){log("discarding unknown transition: ",fx);opts.fxs.splice(i,1);i--;}}if(!opts.fxs.length){log("No valid transitions named; slideshow terminating.");return false;}}else{if(opts.fx=="all"){opts.multiFx=true;opts.fxs=[];for(p in txs){tx=txs[p];if(txs.hasOwnProperty(p)&&$.isFunction(tx)){opts.fxs.push(p);}}}}if(opts.multiFx&&opts.randomizeEffects){var r1=Math.floor(Math.random()*20)+30;for(i=0;i<r1;i++){var r2=Math.floor(Math.random()*opts.fxs.length);opts.fxs.push(opts.fxs.splice(r2,1)[0]);}log("randomized fx sequence: ",opts.fxs);}return true;}function exposeAddSlide(opts,els){opts.addSlide=function(newSlide,prepend){var $s=$(newSlide),s=$s[0];if(!opts.autostopCount){opts.countdown++;}els[prepend?"unshift":"push"](s);if(opts.els){opts.els[prepend?"unshift":"push"](s);}opts.slideCount=els.length;$s.css("position","absolute");$s[prepend?"prependTo":"appendTo"](opts.$cont);if(prepend){opts.currSlide++;opts.nextSlide++;}if(!$.support.opacity&&opts.cleartype&&!opts.cleartypeNoBg){clearTypeFix($s);}if(opts.fit&&opts.width){$s.width(opts.width);}if(opts.fit&&opts.height&&opts.height!="auto"){$slides.height(opts.height);}s.cycleH=(opts.fit&&opts.height)?opts.height:$s.height();s.cycleW=(opts.fit&&opts.width)?opts.width:$s.width();$s.css(opts.cssBefore);if(opts.pager){$.fn.cycle.createPagerAnchor(els.length-1,s,$(opts.pager),els,opts);}if($.isFunction(opts.onAddSlide)){opts.onAddSlide($s);}else{$s.hide();}};}$.fn.cycle.resetState=function(opts,fx){fx=fx||opts.fx;opts.before=[];opts.after=[];opts.cssBefore=$.extend({},opts.original.cssBefore);opts.cssAfter=$.extend({},opts.original.cssAfter);opts.animIn=$.extend({},opts.original.animIn);opts.animOut=$.extend({},opts.original.animOut);opts.fxFn=null;$.each(opts.original.before,function(){opts.before.push(this);});$.each(opts.original.after,function(){opts.after.push(this);});var init=$.fn.cycle.transitions[fx];if($.isFunction(init)){init(opts.$cont,$(opts.elements),opts);}};function go(els,opts,manual,fwd){if(manual&&opts.busy&&opts.manualTrump){$(els).stop(true,true);opts.busy=false;}if(opts.busy){return;}var p=opts.$cont[0],curr=els[opts.currSlide],next=els[opts.nextSlide];if(p.cycleStop!=opts.stopCount||p.cycleTimeout===0&&!manual){return;}if(!manual&&!p.cyclePause&&((opts.autostop&&(--opts.countdown<=0))||(opts.nowrap&&!opts.random&&opts.nextSlide<opts.currSlide))){if(opts.end){opts.end(opts);}return;}if(manual||!p.cyclePause){var fx=opts.fx;curr.cycleH=curr.cycleH||$(curr).height();curr.cycleW=curr.cycleW||$(curr).width();next.cycleH=next.cycleH||$(next).height();next.cycleW=next.cycleW||$(next).width();if(opts.multiFx){if(opts.lastFx==undefined||++opts.lastFx>=opts.fxs.length){opts.lastFx=0;}fx=opts.fxs[opts.lastFx];opts.currFx=fx;}if(opts.oneTimeFx){fx=opts.oneTimeFx;opts.oneTimeFx=null;}$.fn.cycle.resetState(opts,fx);if(opts.before.length){$.each(opts.before,function(i,o){if(p.cycleStop!=opts.stopCount){return;}o.apply(next,[curr,next,opts,fwd]);});}var after=function(){$.each(opts.after,function(i,o){if(p.cycleStop!=opts.stopCount){return;}o.apply(next,[curr,next,opts,fwd]);});};if(opts.nextSlide!=opts.currSlide){opts.busy=1;if(opts.fxFn){opts.fxFn(curr,next,opts,after,fwd);}else{if($.isFunction($.fn.cycle[opts.fx])){$.fn.cycle[opts.fx](curr,next,opts,after);}else{$.fn.cycle.custom(curr,next,opts,after,manual&&opts.fastOnEvent);}}}opts.lastSlide=opts.currSlide;if(opts.random){opts.currSlide=opts.nextSlide;if(++opts.randomIndex==els.length){opts.randomIndex=0;}opts.nextSlide=opts.randomMap[opts.randomIndex];}else{var roll=(opts.nextSlide+1)==els.length;opts.nextSlide=roll?0:opts.nextSlide+1;opts.currSlide=roll?els.length-1:opts.nextSlide-1;}if(opts.pager){$.fn.cycle.updateActivePagerLink(opts.pager,opts.currSlide);}}var ms=0;if(opts.timeout&&!opts.continuous){ms=getTimeout(curr,next,opts,fwd);}else{if(opts.continuous&&p.cyclePause){ms=10;}}if(ms>0){p.cycleTimeout=setTimeout(function(){go(els,opts,0,!opts.rev);},ms);}}$.fn.cycle.updateActivePagerLink=function(pager,currSlide){$(pager).find("a").removeClass("activeSlide").filter("a:eq("+currSlide+")").addClass("activeSlide");};function getTimeout(curr,next,opts,fwd){if(opts.timeoutFn){var t=opts.timeoutFn(curr,next,opts,fwd);if(t!==false){return t;}}return opts.timeout;}$.fn.cycle.next=function(opts){advance(opts,opts.rev?-1:1);};$.fn.cycle.prev=function(opts){advance(opts,opts.rev?1:-1);};function advance(opts,val){var els=opts.elements;var p=opts.$cont[0],timeout=p.cycleTimeout;if(timeout){clearTimeout(timeout);p.cycleTimeout=0;}if(opts.random&&val<0){opts.randomIndex--;if(--opts.randomIndex==-2){opts.randomIndex=els.length-2;}else{if(opts.randomIndex==-1){opts.randomIndex=els.length-1;}}opts.nextSlide=opts.randomMap[opts.randomIndex];}else{if(opts.random){if(++opts.randomIndex==els.length){opts.randomIndex=0;}opts.nextSlide=opts.randomMap[opts.randomIndex];}else{opts.nextSlide=opts.currSlide+val;if(opts.nextSlide<0){if(opts.nowrap){return false;}opts.nextSlide=els.length-1;}else{if(opts.nextSlide>=els.length){if(opts.nowrap){return false;}opts.nextSlide=0;}}}}if($.isFunction(opts.prevNextClick)){opts.prevNextClick(val>0,opts.nextSlide,els[opts.nextSlide]);}go(els,opts,1,val>=0);return false;}function buildPager(els,opts){;var $p=$(opts.pager);$.each(els,function(i,o){$.fn.cycle.createPagerAnchor(i,o,$p,els,opts);});$.fn.cycle.updateActivePagerLink(opts.pager,opts.startingSlide);}$.fn.cycle.createPagerAnchor=function(i,el,$p,els,opts){var a;if($.isFunction(opts.pagerAnchorBuilder)){a=opts.pagerAnchorBuilder(i,el);}else{a='<a href="#">'+(i+1)+"</a>";}if(!a){return;}var $a=$(a);if($a.parents("body").length===0){var arr=[];if($p.length>1){$p.each(function(){var $clone=$a.clone(true);$(this).append($clone);arr.push($clone);});$a=$(arr);}else{$a.appendTo($p);}}$a.bind(opts.pagerEvent,function(e){e.preventDefault();opts.nextSlide=i;var p=opts.$cont[0],timeout=p.cycleTimeout;if(timeout){clearTimeout(timeout);p.cycleTimeout=0;}if($.isFunction(opts.pagerClick)){opts.pagerClick(opts.nextSlide,els[opts.nextSlide]);}go(els,opts,1,opts.currSlide<i);return false;});if(opts.pagerEvent!="click"){$a.click(function(){return false;});}if(opts.pauseOnPagerHover){$a.hover(function(){opts.$cont[0].cyclePause++;},function(){opts.$cont[0].cyclePause--;});}};$.fn.cycle.hopsFromLast=function(opts,fwd){var hops,l=opts.lastSlide,c=opts.currSlide;if(fwd){hops=c>l?c-l:opts.slideCount-l;}else{hops=c<l?l-c:l+opts.slideCount-c;}return hops;};function clearTypeFix($slides){function hex(s){s=parseInt(s).toString(16);return s.length<2?"0"+s:s;}function getBg(e){for(;e&&e.nodeName.toLowerCase()!="html";e=e.parentNode){var v=$.css(e,"background-color");if(v.indexOf("rgb")>=0){var rgb=v.match(/\d+/g);return"#"+hex(rgb[0])+hex(rgb[1])+hex(rgb[2]);}if(v&&v!="transparent"){return v;}}return"#ffffff";}$slides.each(function(){$(this).css("background-color",getBg(this));});}$.fn.cycle.commonReset=function(curr,next,opts,w,h,rev){$(opts.elements).not(curr).hide();opts.cssBefore.opacity=1;opts.cssBefore.display="block";if(w!==false&&next.cycleW>0){opts.cssBefore.width=next.cycleW;}if(h!==false&&next.cycleH>0){opts.cssBefore.height=next.cycleH;}opts.cssAfter=opts.cssAfter||{};opts.cssAfter.display="none";$(curr).css("zIndex",opts.slideCount+(rev===true?1:0));$(next).css("zIndex",opts.slideCount+(rev===true?0:1));};$.fn.cycle.custom=function(curr,next,opts,cb,speedOverride){var $l=$(curr),$n=$(next);var speedIn=opts.speedIn,speedOut=opts.speedOut,easeIn=opts.easeIn,easeOut=opts.easeOut;$n.css(opts.cssBefore);if(speedOverride){if(typeof speedOverride=="number"){speedIn=speedOut=speedOverride;}else{speedIn=speedOut=1;}easeIn=easeOut=null;}var fn=function(){$n.animate(opts.animIn,speedIn,easeIn,cb);};$l.animate(opts.animOut,speedOut,easeOut,function(){if(opts.cssAfter){$l.css(opts.cssAfter);}if(!opts.sync){fn();}});if(opts.sync){fn();}};$.fn.cycle.transitions={fade:function($cont,$slides,opts){$slides.not(":eq("+opts.currSlide+")").css("opacity",0);opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts);opts.cssBefore.opacity=0;});opts.animIn={opacity:1};opts.animOut={opacity:0};opts.cssBefore={top:0,left:0};}};$.fn.cycle.ver=function(){return ver;};$.fn.cycle.defaults={fx:"fade",timeout:4000,timeoutFn:null,continuous:0,speed:1000,speedIn:null,speedOut:null,next:null,prev:null,prevNextClick:null,prevNextEvent:"click",pager:null,pagerClick:null,pagerEvent:"click",pagerAnchorBuilder:null,before:null,after:null,end:null,easing:null,easeIn:null,easeOut:null,shuffle:null,animIn:null,animOut:null,cssBefore:null,cssAfter:null,fxFn:null,height:"auto",startingSlide:0,sync:1,random:0,fit:0,containerResize:1,pause:0,pauseOnPagerHover:0,autostop:0,autostopCount:0,delay:0,slideExpr:null,cleartype:!$.support.opacity,cleartypeNoBg:false,nowrap:0,fastOnEvent:0,randomizeEffects:1,rev:0,manualTrump:true,requeueOnImageNotLoaded:true,requeueTimeout:250};})(jQuery);
+/*
+ * jQuery Cycle Plugin Transition Definitions
+ */
+;(function($){$.fn.cycle.transitions.scrollUp=function($cont,$slides,opts){$cont.css("overflow","hidden");opts.before.push($.fn.cycle.commonReset);var h=$cont.height();opts.cssBefore={top:h,left:0};opts.cssFirst={top:0};opts.animIn={top:0};opts.animOut={top:-h};};$.fn.cycle.transitions.scrollDown=function($cont,$slides,opts){$cont.css("overflow","hidden");opts.before.push($.fn.cycle.commonReset);var h=$cont.height();opts.cssFirst={top:0};opts.cssBefore={top:-h,left:0};opts.animIn={top:0};opts.animOut={top:h};};$.fn.cycle.transitions.scrollLeft=function($cont,$slides,opts){$cont.css("overflow","hidden");opts.before.push($.fn.cycle.commonReset);var w=$cont.width();opts.cssFirst={left:0};opts.cssBefore={left:w,top:0};opts.animIn={left:0};opts.animOut={left:0-w};};$.fn.cycle.transitions.scrollRight=function($cont,$slides,opts){$cont.css("overflow","hidden");opts.before.push($.fn.cycle.commonReset);var w=$cont.width();opts.cssFirst={left:0};opts.cssBefore={left:-w,top:0};opts.animIn={left:0};opts.animOut={left:w};};$.fn.cycle.transitions.scrollHorz=function($cont,$slides,opts){$cont.css("overflow","hidden").width();opts.before.push(function(curr,next,opts,fwd){$.fn.cycle.commonReset(curr,next,opts);opts.cssBefore.left=fwd?(next.cycleW-1):(1-next.cycleW);opts.animOut.left=fwd?-curr.cycleW:curr.cycleW;});opts.cssFirst={left:0};opts.cssBefore={top:0};opts.animIn={left:0};opts.animOut={top:0};};$.fn.cycle.transitions.scrollVert=function($cont,$slides,opts){$cont.css("overflow","hidden");opts.before.push(function(curr,next,opts,fwd){$.fn.cycle.commonReset(curr,next,opts);opts.cssBefore.top=fwd?(1-next.cycleH):(next.cycleH-1);opts.animOut.top=fwd?curr.cycleH:-curr.cycleH;});opts.cssFirst={top:0};opts.cssBefore={left:0};opts.animIn={top:0};opts.animOut={left:0};};$.fn.cycle.transitions.slideX=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$(opts.elements).not(curr).hide();$.fn.cycle.commonReset(curr,next,opts,false,true);opts.animIn.width=next.cycleW;});opts.cssBefore={left:0,top:0,width:0};opts.animIn={width:"show"};opts.animOut={width:0};};$.fn.cycle.transitions.slideY=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$(opts.elements).not(curr).hide();$.fn.cycle.commonReset(curr,next,opts,true,false);opts.animIn.height=next.cycleH;});opts.cssBefore={left:0,top:0,height:0};opts.animIn={height:"show"};opts.animOut={height:0};};$.fn.cycle.transitions.shuffle=function($cont,$slides,opts){var i,w=$cont.css("overflow","visible").width();$slides.css({left:0,top:0});opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,true,true,true);});opts.speed=opts.speed/2;opts.random=0;opts.shuffle=opts.shuffle||{left:-w,top:15};opts.els=[];for(i=0;i<$slides.length;i++){opts.els.push($slides[i]);}for(i=0;i<opts.currSlide;i++){opts.els.push(opts.els.shift());}opts.fxFn=function(curr,next,opts,cb,fwd){var $el=fwd?$(curr):$(next);$(next).css(opts.cssBefore);var count=opts.slideCount;$el.animate(opts.shuffle,opts.speedIn,opts.easeIn,function(){var hops=$.fn.cycle.hopsFromLast(opts,fwd);for(var k=0;k<hops;k++){fwd?opts.els.push(opts.els.shift()):opts.els.unshift(opts.els.pop());}if(fwd){for(var i=0,len=opts.els.length;i<len;i++){$(opts.els[i]).css("z-index",len-i+count);}}else{var z=$(curr).css("z-index");$el.css("z-index",parseInt(z)+1+count);}$el.animate({left:0,top:0},opts.speedOut,opts.easeOut,function(){$(fwd?this:curr).hide();if(cb){cb();}});});};opts.cssBefore={display:"block",opacity:1,top:0,left:0};};$.fn.cycle.transitions.turnUp=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,true,false);opts.cssBefore.top=next.cycleH;opts.animIn.height=next.cycleH;});opts.cssFirst={top:0};opts.cssBefore={left:0,height:0};opts.animIn={top:0};opts.animOut={height:0};};$.fn.cycle.transitions.turnDown=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,true,false);opts.animIn.height=next.cycleH;opts.animOut.top=curr.cycleH;});opts.cssFirst={top:0};opts.cssBefore={left:0,top:0,height:0};opts.animOut={height:0};};$.fn.cycle.transitions.turnLeft=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,false,true);opts.cssBefore.left=next.cycleW;opts.animIn.width=next.cycleW;});opts.cssBefore={top:0,width:0};opts.animIn={left:0};opts.animOut={width:0};};$.fn.cycle.transitions.turnRight=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,false,true);opts.animIn.width=next.cycleW;opts.animOut.left=curr.cycleW;});opts.cssBefore={top:0,left:0,width:0};opts.animIn={left:0};opts.animOut={width:0};};$.fn.cycle.transitions.zoom=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,false,false,true);opts.cssBefore.top=next.cycleH/2;opts.cssBefore.left=next.cycleW/2;opts.animIn={top:0,left:0,width:next.cycleW,height:next.cycleH};opts.animOut={width:0,height:0,top:curr.cycleH/2,left:curr.cycleW/2};});opts.cssFirst={top:0,left:0};opts.cssBefore={width:0,height:0};};$.fn.cycle.transitions.fadeZoom=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,false,false);opts.cssBefore.left=next.cycleW/2;opts.cssBefore.top=next.cycleH/2;opts.animIn={top:0,left:0,width:next.cycleW,height:next.cycleH};});opts.cssBefore={width:0,height:0};opts.animOut={opacity:0};};$.fn.cycle.transitions.blindX=function($cont,$slides,opts){var w=$cont.css("overflow","hidden").width();opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts);opts.animIn.width=next.cycleW;opts.animOut.left=curr.cycleW;});opts.cssBefore={left:w,top:0};opts.animIn={left:0};opts.animOut={left:w};};$.fn.cycle.transitions.blindY=function($cont,$slides,opts){var h=$cont.css("overflow","hidden").height();opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts);opts.animIn.height=next.cycleH;opts.animOut.top=curr.cycleH;});opts.cssBefore={top:h,left:0};opts.animIn={top:0};opts.animOut={top:h};};$.fn.cycle.transitions.blindZ=function($cont,$slides,opts){var h=$cont.css("overflow","hidden").height();var w=$cont.width();opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts);opts.animIn.height=next.cycleH;opts.animOut.top=curr.cycleH;});opts.cssBefore={top:h,left:w};opts.animIn={top:0,left:0};opts.animOut={top:h,left:w};};$.fn.cycle.transitions.growX=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,false,true);opts.cssBefore.left=this.cycleW/2;opts.animIn={left:0,width:this.cycleW};opts.animOut={left:0};});opts.cssBefore={width:0,top:0};};$.fn.cycle.transitions.growY=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,true,false);opts.cssBefore.top=this.cycleH/2;opts.animIn={top:0,height:this.cycleH};opts.animOut={top:0};});opts.cssBefore={height:0,left:0};};$.fn.cycle.transitions.curtainX=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,false,true,true);opts.cssBefore.left=next.cycleW/2;opts.animIn={left:0,width:this.cycleW};opts.animOut={left:curr.cycleW/2,width:0};});opts.cssBefore={top:0,width:0};};$.fn.cycle.transitions.curtainY=function($cont,$slides,opts){opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,true,false,true);opts.cssBefore.top=next.cycleH/2;opts.animIn={top:0,height:next.cycleH};opts.animOut={top:curr.cycleH/2,height:0};});opts.cssBefore={left:0,height:0};};$.fn.cycle.transitions.cover=function($cont,$slides,opts){var d=opts.direction||"left";var w=$cont.css("overflow","hidden").width();var h=$cont.height();opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts);if(d=="right"){opts.cssBefore.left=-w;}else{if(d=="up"){opts.cssBefore.top=h;}else{if(d=="down"){opts.cssBefore.top=-h;}else{opts.cssBefore.left=w;}}}});opts.animIn={left:0,top:0};opts.animOut={opacity:1};opts.cssBefore={top:0,left:0};};$.fn.cycle.transitions.uncover=function($cont,$slides,opts){var d=opts.direction||"left";var w=$cont.css("overflow","hidden").width();var h=$cont.height();opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,true,true,true);if(d=="right"){opts.animOut.left=w;}else{if(d=="up"){opts.animOut.top=-h;}else{if(d=="down"){opts.animOut.top=h;}else{opts.animOut.left=-w;}}}});opts.animIn={left:0,top:0};opts.animOut={opacity:1};opts.cssBefore={top:0,left:0};};$.fn.cycle.transitions.toss=function($cont,$slides,opts){var w=$cont.css("overflow","visible").width();var h=$cont.height();opts.before.push(function(curr,next,opts){$.fn.cycle.commonReset(curr,next,opts,true,true,true);if(!opts.animOut.left&&!opts.animOut.top){opts.animOut={left:w*2,top:-h/2,opacity:0};}else{opts.animOut.opacity=0;}});opts.cssBefore={left:0,top:0};opts.animIn={left:0};};$.fn.cycle.transitions.wipe=function($cont,$slides,opts){var w=$cont.css("overflow","hidden").width();var h=$cont.height();opts.cssBefore=opts.cssBefore||{};var clip;if(opts.clip){if(/l2r/.test(opts.clip)){clip="rect(0px 0px "+h+"px 0px)";}else{if(/r2l/.test(opts.clip)){clip="rect(0px "+w+"px "+h+"px "+w+"px)";}else{if(/t2b/.test(opts.clip)){clip="rect(0px "+w+"px 0px 0px)";}else{if(/b2t/.test(opts.clip)){clip="rect("+h+"px "+w+"px "+h+"px 0px)";}else{if(/zoom/.test(opts.clip)){var top=parseInt(h/2);var left=parseInt(w/2);clip="rect("+top+"px "+left+"px "+top+"px "+left+"px)";}}}}}}opts.cssBefore.clip=opts.cssBefore.clip||clip||"rect(0px 0px 0px 0px)";var d=opts.cssBefore.clip.match(/(\d+)/g);var t=parseInt(d[0]),r=parseInt(d[1]),b=parseInt(d[2]),l=parseInt(d[3]);opts.before.push(function(curr,next,opts){if(curr==next){return;}var $curr=$(curr),$next=$(next);$.fn.cycle.commonReset(curr,next,opts,true,true,false);opts.cssAfter.display="block";var step=1,count=parseInt((opts.speedIn/13))-1;(function f(){var tt=t?t-parseInt(step*(t/count)):0;var ll=l?l-parseInt(step*(l/count)):0;var bb=b<h?b+parseInt(step*((h-b)/count||1)):h;var rr=r<w?r+parseInt(step*((w-r)/count||1)):w;$next.css({clip:"rect("+tt+"px "+rr+"px "+bb+"px "+ll+"px)"});(step++<=count)?setTimeout(f,13):$curr.css("display","none");})();});opts.cssBefore={display:"block",opacity:1,top:0,left:0};opts.animIn={left:0};opts.animOut={left:0};};})(jQuery);
+;
+$ = jQuery.noConflict(); // Make sure jQuery owns $ here
+
+/**
+ * Using window.load instead of document.ready is a requirement for compatibility
+ * with fluid images. If images (used as slides) have no dimensions set webkit
+ * browsers will fail to properly scale the slider.
+ */
+var started = 0;
+var pagerEl = '.cycle-pager';
+var pagerAnchor = null;
+$(window).load(function() {
+  cycleStart();
+  $(window).resize(function() {
+    cycleStart();
+  });
+});
+function cycleStart() {
+  // Remove contextual links, they mess up the cycle pager
+  $('.block').has(Drupal.settings.slideshowKit.invoke).find('.contextual-links-wrapper').remove();
+
+  if (parseInt(Drupal.settings.slideshowKit.showPager) && (started != 1)) {
+    $(Drupal.settings.slideshowKit.invoke).after('<div class="wrap-cycle-pager"><ul class="cycle-pager">');
+    pagerAnchor = function(idx, slide) {return '<li><a href="#">' + idx + '</a></li>';}
+  }
+  if (parseInt(Drupal.settings.slideshowKit.imgPager) && (started != 1)) {
+    pagerAnchor = function(idx, slide) {return '<li><a href="#"><img src="' + slide.src + '" width="100" height="100" /></a></li>';}
+  }
+
+  if (started) {
+    pagerEl = null;
+  }
+
+  /**
+   * @code
+   * force the slideshow to cover entire width
+   */
+  $(Drupal.settings.slideshowKit.invoke).width('100%');
+  $(Drupal.settings.slideshowKit.invoke + '>*').width('100%').height('auto');
+
+  $(Drupal.settings.slideshowKit.invoke).cycle({
+    fx:                   Drupal.settings.slideshowKit.fx,
+    timeout:              parseInt(Drupal.settings.slideshowKit.timeout),
+    continuous:           parseInt(Drupal.settings.slideshowKit.continuous),
+    speed:                parseInt(Drupal.settings.slideshowKit.speed),
+    pagerEvent:           Drupal.settings.slideshowKit.pagerEvent,
+    easing:               Drupal.settings.slideshowKit.easing,
+    random:               parseInt(Drupal.settings.slideshowKit.random),
+    pause:                parseInt(Drupal.settings.slideshowKit.pause),
+    pauseOnPagerHover:    parseInt(Drupal.settings.slideshowKit.pauseOnPagerHover),
+    delay:                parseInt(Drupal.settings.slideshowKit.delay),
+    pager:                pagerEl,
+    pagerAnchorBuilder:   pagerAnchor,
+    /**
+     * @code
+     * For the slides cycle has built in fitting and forced aspec-ratio
+     * ...perfect for our flexible slider.
+     */
+    fit: 1,
+    aspect: 1
+  });
+
+  /**
+   * @ code
+   * This is required to force the browse to upscale image slides at window.resize
+   * (e.g. when switching from portrait to landscape mode)
+   */
+  $(Drupal.settings.slideshowKit.invoke).width('100%').height($(Drupal.settings.slideshowKit.invoke + '>:first-child').height());
+
+  // Keep track of restarts
+  started = 1;
+};
+/*
+ * Based on easing equations by Robert Penner. Adapted from jqueryt easing plugin by George McGinley Smith. See below for copyright notice of equations
+ * Changelog: Added a number of "Turbo" functions that exponentially increase acceleration to the Nth power ~Jurriaan Roelofs
+*/
+
+jQuery.easing['jswing'] = jQuery.easing['swing'];
+
+// t: current time, b: begInnIng value, c: change In value, d: duration
+jQuery.extend( jQuery.easing,
+{
+	def: 'easeOutTurbo',
+	swing: function (x, t, b, c, d) {
+		//alert(jQuery.easing.default);
+		return jQuery.easing[jQuery.easing.def](x, t, b, c, d);
+	},
+  easeInTurbo: function (x, t, b, c, d) {
+    return c*(t/=d)*t + b;
+  },
+  easeOutTurbo: function (x, t, b, c, d) {
+    return -c *(t/=d)*(t-2) + b;
+  },
+  easeInTurbo2: function (x, t, b, c, d) {
+    return c*(t/=d)*t*t + b;
+  },
+  easeOutTurbo2: function (x, t, b, c, d) {
+    return c*((t=t/d-1)*t*t + 1) + b;
+  },
+  easeInTurbo3: function (x, t, b, c, d) {
+    return c*(t/=d)*t*t*t + b;
+  },
+  easeOutTurbo3: function (x, t, b, c, d) {
+    return -c * ((t=t/d-1)*t*t*t - 1) + b;
+  },
+  easeInTurbo4: function (x, t, b, c, d) {
+    return c*(t/=d)*t*t*t*t*t + b;
+  },
+  easeOutTurbo4: function (x, t, b, c, d) {
+    return -c * ((t=t/d-1)*t*t*t*t*t - 1) + b;
+  },
+  easeInSine: function (x, t, b, c, d) {
+    return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
+  },
+  easeOutSine: function (x, t, b, c, d) {
+    return c * Math.sin(t/d * (Math.PI/2)) + b;
+  },
+  easeInExpo: function (x, t, b, c, d) {
+    return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;
+  },
+  easeOutExpo: function (x, t, b, c, d) {
+    return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+  },
+  easeInCirc: function (x, t, b, c, d) {
+    return -c * (Math.sqrt(1 - (t/=d)*t) - 1) + b;
+  },
+  easeOutCirc: function (x, t, b, c, d) {
+    return c * Math.sqrt(1 - (t=t/d-1)*t) + b;
+  },
+  easeInElastic: function (x, t, b, c, d) {
+    var s=1.70158;var p=0;var a=c;
+    if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
+    if (a < Math.abs(c)) { a=c; var s=p/4; }
+    else var s = p/(2*Math.PI) * Math.asin (c/a);
+    return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+  },
+  easeOutElastic: function (x, t, b, c, d) {
+    var s=1.70158;var p=0;var a=c;
+    if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
+    if (a < Math.abs(c)) { a=c; var s=p/4; }
+    else var s = p/(2*Math.PI) * Math.asin (c/a);
+    return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
+  },
+  easeInOvershoot: function (x, t, b, c, d, s) {
+    if (s == undefined) s = 1.70158;
+    return c*(t/=d)*t*((s+1)*t - s) + b;
+  },
+  easeOutOvershoot: function (x, t, b, c, d, s) {
+    if (s == undefined) s = 1.70158;
+    return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+  },
+  easeInOvershootTurbo: function (x, t, b, c, d, s) {
+    if (s == undefined) s = 1.70158;
+    return c*(t/=d)*t*t*((s+1)*t - s) + b;
+  },
+  easeOutOvershootTurbo: function (x, t, b, c, d, s) {
+    if (s == undefined) s = 1.70158;
+    return c*((t=t/d-1)*t*t*((s+1)*t + s) + 1) + b;
+  },
+  easeInBounce: function (x, t, b, c, d) {
+    return c - jQuery.easing.easeOutBounce (x, d-t, 0, c, d) + b;
+  },
+  easeOutBounce: function (x, t, b, c, d) {
+    if ((t/=d) < (1/2.75)) {
+      return c*(7.5625*t*t) + b;
+    } else if (t < (2/2.75)) {
+      return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+    } else if (t < (2.5/2.75)) {
+      return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+    } else {
+      return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+    }
+  }
+});;
+$ = jQuery.noConflict(); // Make sure jQuery owns $ here
+ $.fn.sooperfish=function(op){var sf=$.fn.sooperfish;sf.o=[];sf.op={};sf.c={menuClass:'sf-js-enabled',isParent:'sf-parent',arrowClass:'sf-arrow'};sf.defaults={sooperfishWidth:150,multiColumn:true,dualColumn:6,tripleColumn:12,hoverClass:'sfHover',delay:500,animationShow:{height:'show'},speedShow:600,easingShow:'easeOutBounce',animationHide:{height:'hide',opacity:'hide'},speedHide:200,easingHide:'easeInTurbo',autoArrows:true,onShow:function(){},onHide:function(){}};var o=$.extend({},sf.defaults,op);if(!o.sooperfishWidth){o.sooperfishWidth=$('ul:first li:first',this).width();alert(o.sooperfishWidth);}
+this.each(function(){var parentLi=$('li:has(ul)',this);parentLi.each(function(){if(o.autoArrows){$('>a',this).append('<span class="'+sf.c.arrowClass+'"></span>');}
+$(this).addClass(sf.c.isParent);});if(o.multiColumn){var uls=$('ul',this);uls.each(function(){var ulsize=$('>li:not(.backLava)',this).length;if(ulsize>=o.dualColumn){if(ulsize>=o.tripleColumn){$(this).width(3*o.sooperfishWidth);}else{$(this).width(2*o.sooperfishWidth);}}});}
+var root=this,zIndex=1000;function getSubmenu(ele){if(ele.nodeName.toLowerCase()=='li'){var submenu=$('> ul',ele);return submenu.length?submenu[0]:null;}else{return ele;}}
+function getActuator(ele){if(ele.nodeName.toLowerCase()=='ul'){return $(ele).parents('li')[0];}else{return ele;}}
+function hidesooperfishUl(){var submenu=getSubmenu(this);if(!submenu)return;$.data(submenu,'cancelHide',false);setTimeout(function(){if(!$.data(submenu,'cancelHide')){$(submenu).animate(o.animationHide,o.speedHide,o.easingHide,function(){o.onHide.call(submenu);});}},o.delay);}
+function showsooperfishUl(){var submenu=getSubmenu(this);if(!submenu)return;$.data(submenu,'cancelHide',true);$(submenu).css({zIndex:zIndex++}).animate(o.animationShow,o.speedShow,o.easingShow,function(){o.onShow.call(submenu);});if(this.nodeName.toLowerCase()=='ul'){var li=getActuator(this);$(li).addClass('hover');$('> a',li).addClass('hover');}}
+$('li',this).hover(showsooperfishUl,hidesooperfishUl);});};;
+$ = jQuery.noConflict(); // Make sure jQuery owns $ here
+
+jQuery(document).ready(function() {
+
+  $(Drupal.settings.sooperfish.invoke+' ul').hide().css('left','0'); //Remove the default CSS behaviour of hiding menu outside the viewport, so that we can have a slideUp animation in a visible position
+  $(Drupal.settings.sooperfish.invoke).sooperfish({
+    sooperfishWidth: Drupal.settings.sooperfish.sooperfishWidth,
+    hoverClass:  'over',           // hover class
+    delay:     Drupal.settings.sooperfish.delay,                // 500ms delay on mouseout as per Jacob Nielsen advice
+    dualColumn:     Drupal.settings.sooperfish.dualColumn,
+    tripleColumn:     Drupal.settings.sooperfish.tripleColumn,
+    animationShow:   Drupal.settings.sooperfish.animationShow,
+    speedShow:     parseInt(Drupal.settings.sooperfish.speedShow),
+    easingShow:    Drupal.settings.sooperfish.easingShow,
+    animationHide:   Drupal.settings.sooperfish.animationHide,
+    speedHide:     parseInt(Drupal.settings.sooperfish.speedHide),
+    easingHide:    Drupal.settings.sooperfish.easingHide,
+    autoArrows:  false,              // generation of arrow mark-up
+    dropShadows: false               // drop shadows
+  });
+});;
+(function ($) {
+
+
+Drupal.behaviors.dateSelect = {};
+
+Drupal.behaviors.dateSelect.attach = function (context, settings) {
+  var $widget = $('.form-type-date-select').parents('fieldset').once('date');
+  var i;
+  for (i = 0; i < $widget.length; i++) {
+    new Drupal.date.EndDateHandler($widget[i]);
+  }
+};
+
+Drupal.date = Drupal.date || {};
+
+/**
+ * Constructor for the EndDateHandler object.
+ *
+ * The EndDateHandler is responsible for synchronizing a date select widget's
+ * end date with its start date. This behavior lasts until the user
+ * interacts with the end date widget.
+ *
+ * @param widget
+ *   The fieldset DOM element containing the from and to dates.
+ */
+Drupal.date.EndDateHandler = function (widget) {
+  this.$widget = $(widget);
+  this.$start = this.$widget.find('.form-type-date-select[class$=value]');
+  this.$end = this.$widget.find('.form-type-date-select[class$=value2]');
+  if (this.$end.length == 0) {
+    return;
+  }
+  this.initializeSelects();
+  // Only act on date fields where the end date is completely blank or already
+  // the same as the start date. Otherwise, we do not want to override whatever
+  // the default value was.
+  if (this.endDateIsBlank() || this.endDateIsSame()) {
+    this.bindClickHandlers();
+    // Start out with identical start and end dates.
+    this.syncEndDate();
+  }
+};
+
+/**
+ * Store all the select dropdowns in an array on the object, for later use.
+ */
+Drupal.date.EndDateHandler.prototype.initializeSelects = function () {
+  var $starts = this.$start.find('select');
+  var $end, $start, endId, i, id;
+  this.selects = {};
+  for (i = 0; i < $starts.length; i++) {
+    $start = $($starts[i]);
+    id = $start.attr('id');
+    endId = id.replace('-value-', '-value2-');
+    $end = $('#' + endId);
+    this.selects[id] = {
+      'id': id,
+      'start': $start,
+      'end': $end
+    };
+  }
+};
+
+/**
+ * Returns true if all dropdowns in the end date widget are blank.
+ */
+Drupal.date.EndDateHandler.prototype.endDateIsBlank = function () {
+  var id;
+  for (id in this.selects) {
+    if (this.selects.hasOwnProperty(id)) {
+      if (this.selects[id].end.val() != '') {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+/**
+ * Returns true if the end date widget has the same value as the start date.
+ */
+Drupal.date.EndDateHandler.prototype.endDateIsSame = function () {
+  var id;
+  for (id in this.selects) {
+    if (this.selects.hasOwnProperty(id)) {
+      if (this.selects[id].end.val() != this.selects[id].start.val()) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+/**
+ * Add a click handler to each of the start date's select dropdowns.
+ */
+Drupal.date.EndDateHandler.prototype.bindClickHandlers = function () {
+  var id;
+  for (id in this.selects) {
+    if (this.selects.hasOwnProperty(id)) {
+      this.selects[id].start.bind('click.endDateHandler', this.startClickHandler.bind(this));
+      this.selects[id].end.bind('focus', this.endFocusHandler.bind(this));
+    }
+  }
+};
+
+/**
+ * Click event handler for each of the start date's select dropdowns.
+ */
+Drupal.date.EndDateHandler.prototype.startClickHandler = function (event) {
+  this.syncEndDate();
+};
+
+/**
+ * Focus event handler for each of the end date's select dropdowns.
+ */
+Drupal.date.EndDateHandler.prototype.endFocusHandler = function (event) {
+  var id;
+  for (id in this.selects) {
+    if (this.selects.hasOwnProperty(id)) {
+      this.selects[id].start.unbind('click.endDateHandler');
+    }
+  }
+  $(event.target).unbind('focus', this.endFocusHandler);
+};
+
+Drupal.date.EndDateHandler.prototype.syncEndDate = function () {
+  var id;
+  for (id in this.selects) {
+    if (this.selects.hasOwnProperty(id)) {
+      this.selects[id].end.val(this.selects[id].start.val());
+    }
+  }
+};
+
+}(jQuery));
+
+/**
+ * Function.prototype.bind polyfill for older browsers.
+ * https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind
+ */
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function (oThis) {
+    if (typeof this !== "function") // closest thing possible to the ECMAScript 5 internal IsCallable function
+      throw new TypeError("Function.prototype.bind - what is trying to be fBound is not callable");
+
+    var aArgs = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP = function () {},
+        fBound = function () {
+          return fToBind.apply(this instanceof fNOP ? this : oThis || window, aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    fNOP.prototype = this.prototype;
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
+}
+;
+(function ($) {
+
+/**
+ * A progressbar object. Initialized with the given id. Must be inserted into
+ * the DOM afterwards through progressBar.element.
+ *
+ * method is the function which will perform the HTTP request to get the
+ * progress bar state. Either "GET" or "POST".
+ *
+ * e.g. pb = new progressBar('myProgressBar');
+ *      some_element.appendChild(pb.element);
+ */
+Drupal.progressBar = function (id, updateCallback, method, errorCallback) {
+  var pb = this;
+  this.id = id;
+  this.method = method || 'GET';
+  this.updateCallback = updateCallback;
+  this.errorCallback = errorCallback;
+
+  // The WAI-ARIA setting aria-live="polite" will announce changes after users
+  // have completed their current activity and not interrupt the screen reader.
+  this.element = $('<div class="progress" aria-live="polite"></div>').attr('id', id);
+  this.element.html('<div class="bar"><div class="filled"></div></div>' +
+                    '<div class="percentage"></div>' +
+                    '<div class="message">&nbsp;</div>');
+};
+
+/**
+ * Set the percentage and status message for the progressbar.
+ */
+Drupal.progressBar.prototype.setProgress = function (percentage, message) {
+  if (percentage >= 0 && percentage <= 100) {
+    $('div.filled', this.element).css('width', percentage + '%');
+    $('div.percentage', this.element).html(percentage + '%');
+  }
+  $('div.message', this.element).html(message);
+  if (this.updateCallback) {
+    this.updateCallback(percentage, message, this);
+  }
+};
+
+/**
+ * Start monitoring progress via Ajax.
+ */
+Drupal.progressBar.prototype.startMonitoring = function (uri, delay) {
+  this.delay = delay;
+  this.uri = uri;
+  this.sendPing();
+};
+
+/**
+ * Stop monitoring progress via Ajax.
+ */
+Drupal.progressBar.prototype.stopMonitoring = function () {
+  clearTimeout(this.timer);
+  // This allows monitoring to be stopped from within the callback.
+  this.uri = null;
+};
+
+/**
+ * Request progress data from server.
+ */
+Drupal.progressBar.prototype.sendPing = function () {
+  if (this.timer) {
+    clearTimeout(this.timer);
+  }
+  if (this.uri) {
+    var pb = this;
+    // When doing a post request, you need non-null data. Otherwise a
+    // HTTP 411 or HTTP 406 (with Apache mod_security) error may result.
+    $.ajax({
+      type: this.method,
+      url: this.uri,
+      data: '',
+      dataType: 'json',
+      success: function (progress) {
+        // Display errors.
+        if (progress.status == 0) {
+          pb.displayError(progress.data);
+          return;
+        }
+        // Update display.
+        pb.setProgress(progress.percentage, progress.message);
+        // Schedule next timer.
+        pb.timer = setTimeout(function () { pb.sendPing(); }, pb.delay);
+      },
+      error: function (xmlhttp) {
+        pb.displayError(Drupal.ajaxError(xmlhttp, pb.uri));
+      }
+    });
+  }
+};
+
+/**
+ * Display errors on the page.
+ */
+Drupal.progressBar.prototype.displayError = function (string) {
+  var error = $('<div class="messages error"></div>').html(string);
+  $(this.element).before(error).hide();
+
+  if (this.errorCallback) {
+    this.errorCallback(this);
+  }
+};
+
+})(jQuery);
+;
+
+/**
+ * @file
+ * Provides JavaScript additions to the managed file field type.
+ *
+ * This file provides progress bar support (if available), popup windows for
+ * file previews, and disabling of other file fields during Ajax uploads (which
+ * prevents separate file fields from accidentally uploading files).
+ */
+
+(function ($) {
+
+/**
+ * Attach behaviors to managed file element upload fields.
+ */
+Drupal.behaviors.fileValidateAutoAttach = {
+  attach: function (context, settings) {
+    if (settings.file && settings.file.elements) {
+      $.each(settings.file.elements, function(selector) {
+        var extensions = settings.file.elements[selector];
+        $(selector, context).bind('change', {extensions: extensions}, Drupal.file.validateExtension);
+      });
+    }
+  },
+  detach: function (context, settings) {
+    if (settings.file && settings.file.elements) {
+      $.each(settings.file.elements, function(selector) {
+        $(selector, context).unbind('change', Drupal.file.validateExtension);
+      });
+    }
+  }
+};
+
+/**
+ * Attach behaviors to the file upload and remove buttons.
+ */
+Drupal.behaviors.fileButtons = {
+  attach: function (context) {
+    $('input.form-submit', context).bind('mousedown', Drupal.file.disableFields);
+    $('div.form-managed-file input.form-submit', context).bind('mousedown', Drupal.file.progressBar);
+  },
+  detach: function (context) {
+    $('input.form-submit', context).unbind('mousedown', Drupal.file.disableFields);
+    $('div.form-managed-file input.form-submit', context).unbind('mousedown', Drupal.file.progressBar);
+  }
+};
+
+/**
+ * Attach behaviors to links within managed file elements.
+ */
+Drupal.behaviors.filePreviewLinks = {
+  attach: function (context) {
+    $('div.form-managed-file .file a, .file-widget .file a', context).bind('click',Drupal.file.openInNewWindow);
+  },
+  detach: function (context){
+    $('div.form-managed-file .file a, .file-widget .file a', context).unbind('click', Drupal.file.openInNewWindow);
+  }
+};
+
+/**
+ * File upload utility functions.
+ */
+Drupal.file = Drupal.file || {
+  /**
+   * Client-side file input validation of file extensions.
+   */
+  validateExtension: function (event) {
+    // Remove any previous errors.
+    $('.file-upload-js-error').remove();
+
+    // Add client side validation for the input[type=file].
+    var extensionPattern = event.data.extensions.replace(/,\s*/g, '|');
+    if (extensionPattern.length > 1 && this.value.length > 0) {
+      var acceptableMatch = new RegExp('\\.(' + extensionPattern + ')$', 'gi');
+      if (!acceptableMatch.test(this.value)) {
+        var error = Drupal.t("The selected file %filename cannot be uploaded. Only files with the following extensions are allowed: %extensions.", {
+          '%filename': this.value,
+          '%extensions': extensionPattern.replace(/\|/g, ', ')
+        });
+        $(this).parents('div.form-managed-file').prepend('<div class="messages error file-upload-js-error">' + error + '</div>');
+        this.value = '';
+        return false;
+      }
+    }
+  },
+  /**
+   * Prevent file uploads when using buttons not intended to upload.
+   */
+  disableFields: function (event){
+    var clickedButton = this;
+
+    // Only disable upload fields for Ajax buttons.
+    if (!$(clickedButton).hasClass('ajax-processed')) {
+      return;
+    }
+
+    // Check if we're working with an "Upload" button.
+    var $enabledFields = [];
+    if ($(this).parents('div.form-managed-file').size() > 0) {
+      $enabledFields = $(this).parents('div.form-managed-file').find('input.form-file');
+    }
+
+    // Temporarily disable upload fields other than the one we're currently
+    // working with. Filter out fields that are already disabled so that they
+    // do not get enabled when we re-enable these fields at the end of behavior
+    // processing. Re-enable in a setTimeout set to a relatively short amount
+    // of time (1 second). All the other mousedown handlers (like Drupal's Ajax
+    // behaviors) are excuted before any timeout functions are called, so we
+    // don't have to worry about the fields being re-enabled too soon.
+    // @todo If the previous sentence is true, why not set the timeout to 0?
+    var $fieldsToTemporarilyDisable = $('div.form-managed-file input.form-file').not($enabledFields).not(':disabled');
+    $fieldsToTemporarilyDisable.attr('disabled', 'disabled');
+    setTimeout(function (){
+      $fieldsToTemporarilyDisable.attr('disabled', '');
+    }, 1000);
+  },
+  /**
+   * Add progress bar support if possible.
+   */
+  progressBar: function (event) {
+    var clickedButton = this;
+    var $progressId = $(clickedButton).parents('div.form-managed-file').find('input.file-progress');
+    if ($progressId.size()) {
+      var originalName = $progressId.attr('name');
+
+      // Replace the name with the required identifier.
+      $progressId.attr('name', originalName.match(/APC_UPLOAD_PROGRESS|UPLOAD_IDENTIFIER/)[0]);
+
+      // Restore the original name after the upload begins.
+      setTimeout(function () {
+        $progressId.attr('name', originalName);
+      }, 1000);
+    }
+    // Show the progress bar if the upload takes longer than half a second.
+    setTimeout(function () {
+      $(clickedButton).parents('div.form-managed-file').find('div.ajax-progress-bar').slideDown();
+    }, 500);
+  },
+  /**
+   * Open links to files within forms in a new window.
+   */
+  openInNewWindow: function (event) {
+    $(this).attr('target', '_blank');
+    window.open(this.href, 'filePreview', 'toolbar=0,scrollbars=1,location=1,statusbar=1,menubar=0,resizable=1,width=500,height=550');
+    return false;
+  }
+};
+
+})(jQuery);
+;
+(function ($) {
+
+Drupal.behaviors.textarea = {
+  attach: function (context, settings) {
+    $('.form-textarea-wrapper.resizable', context).once('textarea', function () {
+      var staticOffset = null;
+      var textarea = $(this).addClass('resizable-textarea').find('textarea');
+      var grippie = $('<div class="grippie"></div>').mousedown(startDrag);
+
+      grippie.insertAfter(textarea);
+
+      function startDrag(e) {
+        staticOffset = textarea.height() - e.pageY;
+        textarea.css('opacity', 0.25);
+        $(document).mousemove(performDrag).mouseup(endDrag);
+        return false;
+      }
+
+      function performDrag(e) {
+        textarea.height(Math.max(32, staticOffset + e.pageY) + 'px');
+        return false;
+      }
+
+      function endDrag(e) {
+        $(document).unbind('mousemove', performDrag).unbind('mouseup', endDrag);
+        textarea.css('opacity', 1);
+      }
+    });
+  }
+};
+
+})(jQuery);
+;
+(function ($) {
+
+/**
+ * Toggle the visibility of a fieldset using smooth animations.
+ */
+Drupal.toggleFieldset = function (fieldset) {
+  var $fieldset = $(fieldset);
+  if ($fieldset.is('.collapsed')) {
+    var $content = $('> .fieldset-wrapper', fieldset).hide();
+    $fieldset
+      .removeClass('collapsed')
+      .trigger({ type: 'collapsed', value: false })
+      .find('> legend span.fieldset-legend-prefix').html(Drupal.t('Hide'));
+    $content.slideDown({
+      duration: 'fast',
+      easing: 'linear',
+      complete: function () {
+        Drupal.collapseScrollIntoView(fieldset);
+        fieldset.animating = false;
+      },
+      step: function () {
+        // Scroll the fieldset into view.
+        Drupal.collapseScrollIntoView(fieldset);
+      }
+    });
+  }
+  else {
+    $fieldset.trigger({ type: 'collapsed', value: true });
+    $('> .fieldset-wrapper', fieldset).slideUp('fast', function () {
+      $fieldset
+        .addClass('collapsed')
+        .find('> legend span.fieldset-legend-prefix').html(Drupal.t('Show'));
+      fieldset.animating = false;
+    });
+  }
+};
+
+/**
+ * Scroll a given fieldset into view as much as possible.
+ */
+Drupal.collapseScrollIntoView = function (node) {
+  var h = document.documentElement.clientHeight || document.body.clientHeight || 0;
+  var offset = document.documentElement.scrollTop || document.body.scrollTop || 0;
+  var posY = $(node).offset().top;
+  var fudge = 55;
+  if (posY + node.offsetHeight + fudge > h + offset) {
+    if (node.offsetHeight > h) {
+      window.scrollTo(0, posY);
+    }
+    else {
+      window.scrollTo(0, posY + node.offsetHeight - h + fudge);
+    }
+  }
+};
+
+Drupal.behaviors.collapse = {
+  attach: function (context, settings) {
+    $('fieldset.collapsible', context).once('collapse', function () {
+      var $fieldset = $(this);
+      // Expand fieldset if there are errors inside, or if it contains an
+      // element that is targeted by the uri fragment identifier. 
+      var anchor = location.hash && location.hash != '#' ? ', ' + location.hash : '';
+      if ($('.error' + anchor, $fieldset).length) {
+        $fieldset.removeClass('collapsed');
+      }
+
+      var summary = $('<span class="summary"></span>');
+      $fieldset.
+        bind('summaryUpdated', function () {
+          var text = $.trim($fieldset.drupalGetSummary());
+          summary.html(text ? ' (' + text + ')' : '');
+        })
+        .trigger('summaryUpdated');
+
+      // Turn the legend into a clickable link, but retain span.fieldset-legend
+      // for CSS positioning.
+      var $legend = $('> legend .fieldset-legend', this);
+
+      $('<span class="fieldset-legend-prefix element-invisible"></span>')
+        .append($fieldset.hasClass('collapsed') ? Drupal.t('Show') : Drupal.t('Hide'))
+        .prependTo($legend)
+        .after(' ');
+
+      // .wrapInner() does not retain bound events.
+      var $link = $('<a class="fieldset-title" href="#"></a>')
+        .prepend($legend.contents())
+        .appendTo($legend)
+        .click(function () {
+          var fieldset = $fieldset.get(0);
+          // Don't animate multiple times.
+          if (!fieldset.animating) {
+            fieldset.animating = true;
+            Drupal.toggleFieldset(fieldset);
+          }
+          return false;
+        });
+
+      $legend.append(summary);
+    });
+  }
+};
+
+})(jQuery);
+;
+(function ($) {
+
+Drupal.behaviors.menuFieldsetSummaries = {
+  attach: function (context) {
+    $('fieldset.menu-link-form', context).drupalSetSummary(function (context) {
+      if ($('.form-item-menu-enabled input', context).is(':checked')) {
+        return Drupal.checkPlain($('.form-item-menu-link-title input', context).val());
+      }
+      else {
+        return Drupal.t('Not in menu');
+      }
+    });
+  }
+};
+
+/**
+ * Automatically fill in a menu link title, if possible.
+ */
+Drupal.behaviors.menuLinkAutomaticTitle = {
+  attach: function (context) {
+    $('fieldset.menu-link-form', context).each(function () {
+      // Try to find menu settings widget elements as well as a 'title' field in
+      // the form, but play nicely with user permissions and form alterations.
+      var $checkbox = $('.form-item-menu-enabled input', this);
+      var $link_title = $('.form-item-menu-link-title input', context);
+      var $title = $(this).closest('form').find('.form-item-title input');
+      // Bail out if we do not have all required fields.
+      if (!($checkbox.length && $link_title.length && $title.length)) {
+        return;
+      }
+      // If there is a link title already, mark it as overridden. The user expects
+      // that toggling the checkbox twice will take over the node's title.
+      if ($checkbox.is(':checked') && $link_title.val().length) {
+        $link_title.data('menuLinkAutomaticTitleOveridden', true);
+      }
+      // Whenever the value is changed manually, disable this behavior.
+      $link_title.keyup(function () {
+        $link_title.data('menuLinkAutomaticTitleOveridden', true);
+      });
+      // Global trigger on checkbox (do not fill-in a value when disabled).
+      $checkbox.change(function () {
+        if ($checkbox.is(':checked')) {
+          if (!$link_title.data('menuLinkAutomaticTitleOveridden')) {
+            $link_title.val($title.val());
+          }
+        }
+        else {
+          $link_title.val('');
+          $link_title.removeData('menuLinkAutomaticTitleOveridden');
+        }
+        $checkbox.closest('fieldset.vertical-tabs-pane').trigger('summaryUpdated');
+        $checkbox.trigger('formUpdated');
+      });
+      // Take over any title change.
+      $title.keyup(function () {
+        if (!$link_title.data('menuLinkAutomaticTitleOveridden') && $checkbox.is(':checked')) {
+          $link_title.val($title.val());
+          $link_title.val($title.val()).trigger('formUpdated');
+        }
+      });
+    });
+  }
+};
+
+})(jQuery);
+;
+
+(function ($) {
+
+Drupal.behaviors.pathFieldsetSummaries = {
+  attach: function (context) {
+    $('fieldset.path-form', context).drupalSetSummary(function (context) {
+      var path = $('.form-item-path-alias input').val();
+
+      return path ?
+        Drupal.t('Alias: @alias', { '@alias': path }) :
+        Drupal.t('No alias');
+    });
+  }
+};
+
+})(jQuery);
+;
+
+(function ($) {
+
+Drupal.behaviors.commentFieldsetSummaries = {
+  attach: function (context) {
+    $('fieldset.comment-node-settings-form', context).drupalSetSummary(function (context) {
+      return Drupal.checkPlain($('.form-item-comment input:checked', context).next('label').text());
+    });
+
+    // Provide the summary for the node type form.
+    $('fieldset.comment-node-type-settings-form', context).drupalSetSummary(function(context) {
+      var vals = [];
+
+      // Default comment setting.
+      vals.push($(".form-item-comment select option:selected", context).text());
+
+      // Threading.
+      var threading = $(".form-item-comment-default-mode input:checked", context).next('label').text();
+      if (threading) {
+        vals.push(threading);
+      }
+
+      // Comments per page.
+      var number = $(".form-item-comment-default-per-page select option:selected", context).val();
+      vals.push(Drupal.t('@number comments per page', {'@number': number}));
+
+      return Drupal.checkPlain(vals.join(', '));
+    });
+  }
+};
+
+})(jQuery);
+;
+(function ($) {
+
+/**
+ * Attaches the autocomplete behavior to all required fields.
+ */
+Drupal.behaviors.autocomplete = {
+  attach: function (context, settings) {
+    var acdb = [];
+    $('input.autocomplete', context).once('autocomplete', function () {
+      var uri = this.value;
+      if (!acdb[uri]) {
+        acdb[uri] = new Drupal.ACDB(uri);
+      }
+      var $input = $('#' + this.id.substr(0, this.id.length - 13))
+        .attr('autocomplete', 'OFF')
+        .attr('aria-autocomplete', 'list');
+      $($input[0].form).submit(Drupal.autocompleteSubmit);
+      $input.parent()
+        .attr('role', 'application')
+        .append($('<span class="element-invisible" aria-live="assertive"></span>')
+          .attr('id', $input.attr('id') + '-autocomplete-aria-live')
+        );
+      new Drupal.jsAC($input, acdb[uri]);
+    });
+  }
+};
+
+/**
+ * Prevents the form from submitting if the suggestions popup is open
+ * and closes the suggestions popup when doing so.
+ */
+Drupal.autocompleteSubmit = function () {
+  return $('#autocomplete').each(function () {
+    this.owner.hidePopup();
+  }).size() == 0;
+};
+
+/**
+ * An AutoComplete object.
+ */
+Drupal.jsAC = function ($input, db) {
+  var ac = this;
+  this.input = $input[0];
+  this.ariaLive = $('#' + this.input.id + '-autocomplete-aria-live');
+  this.db = db;
+
+  $input
+    .keydown(function (event) { return ac.onkeydown(this, event); })
+    .keyup(function (event) { ac.onkeyup(this, event); })
+    .blur(function () { ac.hidePopup(); ac.db.cancel(); });
+
+};
+
+/**
+ * Handler for the "keydown" event.
+ */
+Drupal.jsAC.prototype.onkeydown = function (input, e) {
+  if (!e) {
+    e = window.event;
+  }
+  switch (e.keyCode) {
+    case 40: // down arrow.
+      this.selectDown();
+      return false;
+    case 38: // up arrow.
+      this.selectUp();
+      return false;
+    default: // All other keys.
+      return true;
+  }
+};
+
+/**
+ * Handler for the "keyup" event.
+ */
+Drupal.jsAC.prototype.onkeyup = function (input, e) {
+  if (!e) {
+    e = window.event;
+  }
+  switch (e.keyCode) {
+    case 16: // Shift.
+    case 17: // Ctrl.
+    case 18: // Alt.
+    case 20: // Caps lock.
+    case 33: // Page up.
+    case 34: // Page down.
+    case 35: // End.
+    case 36: // Home.
+    case 37: // Left arrow.
+    case 38: // Up arrow.
+    case 39: // Right arrow.
+    case 40: // Down arrow.
+      return true;
+
+    case 9:  // Tab.
+    case 13: // Enter.
+    case 27: // Esc.
+      this.hidePopup(e.keyCode);
+      return true;
+
+    default: // All other keys.
+      if (input.value.length > 0)
+        this.populatePopup();
+      else
+        this.hidePopup(e.keyCode);
+      return true;
+  }
+};
+
+/**
+ * Puts the currently highlighted suggestion into the autocomplete field.
+ */
+Drupal.jsAC.prototype.select = function (node) {
+  this.input.value = $(node).data('autocompleteValue');
+};
+
+/**
+ * Highlights the next suggestion.
+ */
+Drupal.jsAC.prototype.selectDown = function () {
+  if (this.selected && this.selected.nextSibling) {
+    this.highlight(this.selected.nextSibling);
+  }
+  else if (this.popup) {
+    var lis = $('li', this.popup);
+    if (lis.size() > 0) {
+      this.highlight(lis.get(0));
+    }
+  }
+};
+
+/**
+ * Highlights the previous suggestion.
+ */
+Drupal.jsAC.prototype.selectUp = function () {
+  if (this.selected && this.selected.previousSibling) {
+    this.highlight(this.selected.previousSibling);
+  }
+};
+
+/**
+ * Highlights a suggestion.
+ */
+Drupal.jsAC.prototype.highlight = function (node) {
+  if (this.selected) {
+    $(this.selected).removeClass('selected');
+  }
+  $(node).addClass('selected');
+  this.selected = node;
+  $(this.ariaLive).html($(this.selected).html());
+};
+
+/**
+ * Unhighlights a suggestion.
+ */
+Drupal.jsAC.prototype.unhighlight = function (node) {
+  $(node).removeClass('selected');
+  this.selected = false;
+  $(this.ariaLive).empty();
+};
+
+/**
+ * Hides the autocomplete suggestions.
+ */
+Drupal.jsAC.prototype.hidePopup = function (keycode) {
+  // Select item if the right key or mousebutton was pressed.
+  if (this.selected && ((keycode && keycode != 46 && keycode != 8 && keycode != 27) || !keycode)) {
+    this.input.value = $(this.selected).data('autocompleteValue');
+  }
+  // Hide popup.
+  var popup = this.popup;
+  if (popup) {
+    this.popup = null;
+    $(popup).fadeOut('fast', function () { $(popup).remove(); });
+  }
+  this.selected = false;
+  $(this.ariaLive).empty();
+};
+
+/**
+ * Positions the suggestions popup and starts a search.
+ */
+Drupal.jsAC.prototype.populatePopup = function () {
+  var $input = $(this.input);
+  var position = $input.position();
+  // Show popup.
+  if (this.popup) {
+    $(this.popup).remove();
+  }
+  this.selected = false;
+  this.popup = $('<div id="autocomplete"></div>')[0];
+  this.popup.owner = this;
+  $(this.popup).css({
+    top: parseInt(position.top + this.input.offsetHeight, 10) + 'px',
+    left: parseInt(position.left, 10) + 'px',
+    width: $input.innerWidth() + 'px',
+    display: 'none'
+  });
+  $input.before(this.popup);
+
+  // Do search.
+  this.db.owner = this;
+  this.db.search(this.input.value);
+};
+
+/**
+ * Fills the suggestion popup with any matches received.
+ */
+Drupal.jsAC.prototype.found = function (matches) {
+  // If no value in the textfield, do not show the popup.
+  if (!this.input.value.length) {
+    return false;
+  }
+
+  // Prepare matches.
+  var ul = $('<ul></ul>');
+  var ac = this;
+  for (key in matches) {
+    $('<li></li>')
+      .html($('<div></div>').html(matches[key]))
+      .mousedown(function () { ac.select(this); })
+      .mouseover(function () { ac.highlight(this); })
+      .mouseout(function () { ac.unhighlight(this); })
+      .data('autocompleteValue', key)
+      .appendTo(ul);
+  }
+
+  // Show popup with matches, if any.
+  if (this.popup) {
+    if (ul.children().size()) {
+      $(this.popup).empty().append(ul).show();
+      $(this.ariaLive).html(Drupal.t('Autocomplete popup'));
+    }
+    else {
+      $(this.popup).css({ visibility: 'hidden' });
+      this.hidePopup();
+    }
+  }
+};
+
+Drupal.jsAC.prototype.setStatus = function (status) {
+  switch (status) {
+    case 'begin':
+      $(this.input).addClass('throbbing');
+      $(this.ariaLive).html(Drupal.t('Searching for matches...'));
+      break;
+    case 'cancel':
+    case 'error':
+    case 'found':
+      $(this.input).removeClass('throbbing');
+      break;
+  }
+};
+
+/**
+ * An AutoComplete DataBase object.
+ */
+Drupal.ACDB = function (uri) {
+  this.uri = uri;
+  this.delay = 300;
+  this.cache = {};
+};
+
+/**
+ * Performs a cached and delayed search.
+ */
+Drupal.ACDB.prototype.search = function (searchString) {
+  var db = this;
+  this.searchString = searchString;
+
+  // See if this string needs to be searched for anyway.
+  searchString = searchString.replace(/^\s+|\s+$/, '');
+  if (searchString.length <= 0 ||
+    searchString.charAt(searchString.length - 1) == ',') {
+    return;
+  }
+
+  // See if this key has been searched for before.
+  if (this.cache[searchString]) {
+    return this.owner.found(this.cache[searchString]);
+  }
+
+  // Initiate delayed search.
+  if (this.timer) {
+    clearTimeout(this.timer);
+  }
+  this.timer = setTimeout(function () {
+    db.owner.setStatus('begin');
+
+    // Ajax GET request for autocompletion.
+    $.ajax({
+      type: 'GET',
+      url: db.uri + '/' + encodeURIComponent(searchString),
+      dataType: 'json',
+      success: function (matches) {
+        if (typeof matches.status == 'undefined' || matches.status != 0) {
+          db.cache[searchString] = matches;
+          // Verify if these are still the matches the user wants to see.
+          if (db.searchString == searchString) {
+            db.owner.found(matches);
+          }
+          db.owner.setStatus('found');
+        }
+      },
+      error: function (xmlhttp) {
+        alert(Drupal.ajaxError(xmlhttp, db.uri));
+      }
+    });
+  }, this.delay);
+};
+
+/**
+ * Cancels the current autocomplete request.
+ */
+Drupal.ACDB.prototype.cancel = function () {
+  if (this.owner) this.owner.setStatus('cancel');
+  if (this.timer) clearTimeout(this.timer);
+  this.searchString = '';
+};
+
+})(jQuery);
+;
+
+(function ($) {
+
+Drupal.behaviors.nodeFieldsetSummaries = {
+  attach: function (context) {
+    $('fieldset.node-form-revision-information', context).drupalSetSummary(function (context) {
+      var revisionCheckbox = $('.form-item-revision input', context);
+
+      // Return 'New revision' if the 'Create new revision' checkbox is checked,
+      // or if the checkbox doesn't exist, but the revision log does. For users
+      // without the "Administer content" permission the checkbox won't appear,
+      // but the revision log will if the content type is set to auto-revision.
+      if (revisionCheckbox.is(':checked') || (!revisionCheckbox.length && $('.form-item-log textarea', context).length)) {
+        return Drupal.t('New revision');
+      }
+
+      return Drupal.t('No revision');
+    });
+
+    $('fieldset.node-form-author', context).drupalSetSummary(function (context) {
+      var name = $('.form-item-name input', context).val() || Drupal.settings.anonymous,
+        date = $('.form-item-date input', context).val();
+      return date ?
+        Drupal.t('By @name on @date', { '@name': name, '@date': date }) :
+        Drupal.t('By @name', { '@name': name });
+    });
+
+    $('fieldset.node-form-options', context).drupalSetSummary(function (context) {
+      var vals = [];
+
+      $('input:checked', context).parent().each(function () {
+        vals.push(Drupal.checkPlain($.trim($(this).text())));
+      });
+
+      if (!$('.form-item-status input', context).is(':checked')) {
+        vals.unshift(Drupal.t('Not published'));
+      }
+      return vals.join(', ');
+    });
+  }
+};
+
+})(jQuery);
+;
